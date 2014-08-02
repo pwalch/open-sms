@@ -67,13 +67,12 @@ public class SmsActivity extends Activity
     }
 
     private void loadConversationList() {
-        ArrayList<String> nameArray = new ArrayList<String>();
-        nameArray.add("Pierre (Numero)");
-        nameArray.add("Aline (Numero)");
-        nameArray.add("Yoann (Numero)");
+        List<Contact> contactList = new ArrayList<Contact>();
+        contactList.add(new Contact("Pierre", 100));
+        contactList.add(new Contact("Yoyo", 101));
+        contactList.add(new Contact("Yaya", 102));
 
-        mContactsView.setAdapter(
-                new ArrayAdapter<String>(this, R.layout.contact_text, nameArray));
+        mContactsView.setAdapter(new ContactListAdapter(this, contactList));
     }
 
     private void loadMessageList(int conversationIndex) {
