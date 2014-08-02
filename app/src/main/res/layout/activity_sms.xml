@@ -18,12 +18,42 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <RelativeLayout
+                android:id="@+id/message_send_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_alignParentBottom="true">
+
+                <Button
+                    android:id="@+id/send_button"
+                    android:layout_width="80dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentRight="true"
+                    android:text="@string/send_button_text"/>
+
+                <EditText
+                    android:id="@+id/message_to_send"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@id/send_button"
+                    android:minLines="1"
+                    android:maxLines="3"
+                    android:maxLength="2000"
+                    android:gravity="top|left"
+                    android:inputType="textMultiLine"
+                    android:scrollbars="vertical"
+                    android:scrollbarStyle="insideInset"
+                    android:overScrollMode="ifContentScrolls"/>
+
+            </RelativeLayout>
+
             <LinearLayout
                 android:id="@+id/conversation_layout"
                 android:layout_width="match_parent"
-                android:layout_height="600dp"
-                android:orientation="vertical"
-                android:layout_alignParentTop="true">
+                android:layout_height="match_parent"
+                android:layout_above="@id/message_send_layout"
+                android:orientation="vertical">
 
                 <ListView
                     android:id="@+id/conversation"
@@ -34,36 +64,6 @@
                     android:dividerHeight="5dp"
                     android:background="#cccc"/>
             </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/message_send_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_alignParentBottom="true">
-
-                <EditText
-                    android:id="@+id/message_to_send"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:lines="5"
-                    android:maxLines="5"
-                    android:maxLength="2000"
-                    android:gravity="top|left"
-                    android:inputType="textMultiLine"
-                    android:scrollbars="vertical"
-                    android:scrollbarStyle="insideInset"
-                    android:overScrollMode="ifContentScrolls"/>
-
-                <Button
-                    android:id="@+id/send_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:text="@string/send_button_text"
-                    android:layout_gravity="bottom"/>
-
-            </LinearLayout>
-
         </RelativeLayout>
 
     </FrameLayout>
