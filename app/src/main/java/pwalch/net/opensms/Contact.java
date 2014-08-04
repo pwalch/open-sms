@@ -5,18 +5,20 @@ package pwalch.net.opensms;
  */
 public class Contact {
     private String mName;
-    private int mNumber;
+    private String mPhoneNumber;
+    private String mConversationFilename;
 
-    public Contact(String name, int number) {
+    public Contact(String name, String number, String conversationFilename) {
         mName = name;
-        mNumber = number;
+        mPhoneNumber = number;
+        mConversationFilename = conversationFilename;
     }
 
     public String getName() {
         return mName;
     }
 
-    public int getNumber() {
-        return mNumber;
+    public String getNumber() {
+        return mPhoneNumber;
     }
 }

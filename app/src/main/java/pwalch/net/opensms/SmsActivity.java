@@ -68,9 +68,9 @@ public class SmsActivity extends Activity
 
     private void loadConversationList() {
         List<Contact> contactList = new ArrayList<Contact>();
-        contactList.add(new Contact("Pierre", 100));
-        contactList.add(new Contact("Yoyo", 101));
-        contactList.add(new Contact("Yaya", 102));
+        contactList.add(new Contact("Pierre", "100", "conv1.xml"));
+        contactList.add(new Contact("Yoyo", "101", "conv2.xml"));
+        contactList.add(new Contact("Yaya", "102", "conv3.xml"));
 
         mContactsView.setAdapter(new ContactListAdapter(this, contactList));
     }
