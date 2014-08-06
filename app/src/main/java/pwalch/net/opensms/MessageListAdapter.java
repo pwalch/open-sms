@@ -34,7 +34,7 @@ public class MessageListAdapter extends ArrayAdapter<Message> {
         TextView textView = (TextView) rowView.findViewById(R.id.message_text);
 
         Message message = getItem(position);
-        textView.setText(message.toString());
+        textView.setText(message.getText());
 
 
         switch (message.getDirection()) {

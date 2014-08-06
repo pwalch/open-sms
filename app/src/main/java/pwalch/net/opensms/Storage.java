@@ -8,10 +8,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,51 +30,44 @@ import javax.xml.parsers.ParserConfigurationException;
 public class Storage {
 
     private static final String STORAGE_FILE_FILENAME = "sms.xml";
-    private FileOutputStream mOutputStream;
-    private FileInputStream mInputStream;
 
-    private File mFile;
-
+    private Context mContext;
     private DocumentBuilderFactory mDocumentBuilderFactory;
     private DocumentBuilder mDocumentBuilder;
     private Document mContactDocument;
 
+    public static String CONTACT_FILENAME = "contact.xml";
+    private File mContactFile;
+
     public Storage(Context context) throws IOException, ParserConfigurationException, SAXException {
-        mFile = new File(context.getFilesDir(), STORAGE_FILE_FILENAME);
+        mContext = context;
+
+        mContactFile = new File(mContext.getFilesDir(), STORAGE_FILE_FILENAME);
 
         // Create file if it does not exist
-        if (mFile.exists()) {
-            mFile.createNewFile();
+        if (mContactFile.exists()) {
+            mContactFile.createNewFile();
         }
 
         mDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
         mDocumentBuilder = mDocumentBuilderFactory.newDocumentBuilder();
-        mContactDocument = mDocumentBuilder.parse(mFile);
+        mContactDocument = mDocumentBuilder.parse(mContactFile);
     }
 
-    private OutputStream createWriteStream(Context context) throws FileNotFoundException {
-        return context.openFileOutput(STORAGE_FILE_FILENAME, Context.MODE_PRIVATE);
-    }
-
-    private InputStream createReadStream(Context context) throws FileNotFoundException {
-        return context.openFileInput(STORAGE_FILE_FILENAME);
-    }
-
-    public void addMessage(Context context, Conversation conversation, Message message) {
+    public void addMessage(Contact contact, Message message) {
 
     }
 
-    private Element getContactRootElement() {
-        return mContactDocument.getDocumentElement();
-    }
-
-    List<Contact> retrieveContactList(Context context) {
-        List<Contact> contactList = new ArrayList<Contact>();
-
-        Element root = getContactRootElement();
-        assert root.getTagName().equals("contacts");
+    List<Contact> retrieveContactList() {
+        Node root = mContactDocument.getDocumentElement();
+        assert root.getNodeName().equals("contacts");
 
         NodeList contactNodeList = root.getChildNodes();
+        return findContactList(contactNodeList);
+    }
+
+    public static List<Contact> findContactList(NodeList contactNodeList) {
+        List<Contact> contactList = new ArrayList<Contact>();
         for (int i = 0; i < contactNodeList.getLength(); ++i) {
             Node contactNode = contactNodeList.item(i);
             assert contactNode.hasChildNodes();
@@ -101,8 +96,42 @@ public class Storage {
                 assert false;
             }
         }
-        Contact contact = new Contact(contactName, contactPhoneNumber, contactConversationFile);
 
-        return contact;
+        return new Contact(contactName, contactPhoneNumber, contactConversationFile);
+    }
+
+    public static void writeStringToFile(String string, File file) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        writer.write(string);
+        writer.close();
+    }
+
+    public static Message findMessage(NodeList messageAttributeList) {
+        int date = 0;
+        Direction direction = Direction.ME_TO_YOU;
+        String text = "";
+        for (int j = 0; j < messageAttributeList.getLength(); ++j) {
+            Node attributeNode = messageAttributeList.item(j);
+            String attributeName = attributeNode.getNodeName();
+            String attributeValue = attributeNode.getTextContent();
+
+            if (attributeName.equals("date")) {
+                date = Integer.parseInt(attributeValue);
+            } else if (attributeName.equals("direction")) {
+                if (attributeValue.equals("me_to_you")) {
+                    direction = Direction.ME_TO_YOU;
+                } else if (attributeValue.equals("you_to_me")) {
+                    direction = Direction.YOU_TO_ME;
+                } else {
+                    assert false;
+                }
+            } else if (attributeName.equals("text")) {
+                text = attributeValue;
+            } else {
+                assert false;
+            }
+        }
+
+        return new Message(date, direction, text);
     }
 }

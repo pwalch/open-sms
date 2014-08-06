@@ -77,10 +77,10 @@ public class SmsActivity extends Activity
 
     private void loadMessageList(int conversationIndex) {
         List<Message> messageList = new ArrayList<Message>();
-        messageList.add(new Message("Coucou", Direction.ME_TO_YOU));
-        messageList.add(new Message("Je suis un petit bonhomme en mousse et je m'amuse dans la prairie. Je me balade dans la forêt. Les vaches font des choses bizarre dans la maison.", Direction.ME_TO_YOU));
+        messageList.add(new Message(1000, Direction.ME_TO_YOU, "Coucou"));
+        messageList.add(new Message(2000, Direction.ME_TO_YOU, "Je suis un petit bonhomme en mousse et je m'amuse dans la prairie. Je me balade dans la forêt. Les vaches font des choses bizarre dans la maison."));
         for (int i = 0; i < 10; ++i) {
-            messageList.add(new Message("I love you.", Direction.YOU_TO_ME));
+            messageList.add(new Message(3000, Direction.YOU_TO_ME, "I love you."));
         }
         mConversationView.setAdapter(new MessageListAdapter(this, messageList));
     }

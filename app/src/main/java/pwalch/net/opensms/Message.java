@@ -1,5 +1,10 @@
 package pwalch.net.opensms;
 
+import android.text.method.DateTimeKeyListener;
+
+import java.util.Calendar;
+import java.util.Date;
+
 enum Direction { ME_TO_YOU, YOU_TO_ME };
 
 /**
@@ -8,18 +13,23 @@ enum Direction { ME_TO_YOU, YOU_TO_ME };
 public class Message {
     private String mText;
     private Direction mDirection;
+    private int mDate;
 
-    public Message(String text, Direction direction) {
+    public Message(int date, Direction direction, String text) {
+        mDate = date;
         mText = text;
         mDirection = direction;
     }
 
-    @Override
-    public String toString() {
+    public String getText() {
         return mText;
     }
 
     public Direction getDirection() {
         return mDirection;
+    }
+
+    public int getDate() {
+        return mDate;
     }
 }

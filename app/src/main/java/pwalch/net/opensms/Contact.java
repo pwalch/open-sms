@@ -21,4 +21,8 @@ public class Contact {
     public String getNumber() {
         return mPhoneNumber;
     }
+
+    public String getConversationFilename() {
+        return mConversationFilename;
+    }
 }
