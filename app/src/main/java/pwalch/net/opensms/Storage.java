@@ -36,10 +36,12 @@ public class Storage {
     private DocumentBuilder mDocumentBuilder;
     private Document mContactDocument;
 
-    public static String CONTACT_FILENAME = "contact.xml";
+    private static final String APP_FOLDER = "open_sms";
+    private static final String CONTACT_FILENAME = "contact.xml";
     private File mContactFile;
 
-    public Storage(Context context) throws IOException, ParserConfigurationException, SAXException {
+    public Storage(Context context)
+            throws IOException, ParserConfigurationException, SAXException {
         mContext = context;
 
         mContactFile = new File(mContext.getFilesDir(), STORAGE_FILE_FILENAME);
@@ -54,6 +56,14 @@ public class Storage {
         mContactDocument = mDocumentBuilder.parse(mContactFile);
     }
 
+    public String getAppFolder() {
+        return mContext.getFilesDir() + "/" + Storage.APP_FOLDER;
+    }
+
+    public String getContactFilename() {
+        return CONTACT_FILENAME;
+    }
+
     public void addMessage(Contact contact, Message message) {
 
     }
@@ -62,8 +72,7 @@ public class Storage {
         Node root = mContactDocument.getDocumentElement();
         assert root.getNodeName().equals("contacts");
 
-        NodeList contactNodeList = root.getChildNodes();
-        return findContactList(contactNodeList);
+        return findContactList(root.getChildNodes());
     }
 
     public static List<Contact> findContactList(NodeList contactNodeList) {
@@ -144,5 +153,16 @@ public class Storage {
             messageList.add(findMessage(messageNode.getChildNodes()));
         }
         return messageList;
+    }
+
+    public List<Message> retrieveMessageList(Contact contact)
+            throws IOException, SAXException {
+        // Read and parse message list file
+        File messageListFile = new File(mContext.getFilesDir(), contact.getMessageListFilename());
+        Document messageListDocument = mDocumentBuilder.parse(messageListFile);
+        Node root = mContactDocument.getDocumentElement();
+        assert root.getNodeName().equals("message");
+
+        return findMessageList(root.getChildNodes());
     }
 }

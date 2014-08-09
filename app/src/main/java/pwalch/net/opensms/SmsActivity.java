@@ -78,7 +78,7 @@ public class SmsActivity extends Activity
     private void loadMessageList(int conversationIndex) {
         final List<Message> messageList = new ArrayList<Message>();
         messageList.add(new Message(1000, Direction.ME_TO_YOU, "Coucou"));
-        messageList.add(new Message(2000, Direction.ME_TO_YOU, "Je suis un petit bonhomme en mousse et je m'amuse dans la prairie. Je me balade dans la forêt. Les vaches font des choses bizarre dans la maison."));
+        messageList.add(new Message(2000, Direction.ME_TO_YOU, "Long message."));
         for (int i = 0; i < 10; ++i) {
             messageList.add(new Message(3000, Direction.YOU_TO_ME, "I love you."));
         }

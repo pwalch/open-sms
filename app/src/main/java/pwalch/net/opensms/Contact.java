@@ -6,12 +6,12 @@ package pwalch.net.opensms;
 public class Contact {
     private String mName;
     private String mPhoneNumber;
-    private String mConversationFilename;
+    private String mMessageListFilename;
 
     public Contact(String name, String number, String conversationFilename) {
         mName = name;
         mPhoneNumber = number;
-        mConversationFilename = conversationFilename;
+        mMessageListFilename = conversationFilename;
     }
 
     public String getName() {
@@ -22,7 +22,7 @@ public class Contact {
         return mPhoneNumber;
     }
 
-    public String getConversationFilename() {
-        return mConversationFilename;
+    public String getMessageListFilename() {
+        return mMessageListFilename;
     }
 }

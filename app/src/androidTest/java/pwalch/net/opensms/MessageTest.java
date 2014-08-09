@@ -28,41 +28,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
  */
 public class MessageTest extends StorageTest {
 
-    private static final String MESSAGE_FIRST_XML =
-            "<message>"
-            + "<date>1000</date>"
-            + "<direction>me_to_you</direction>"
-            + "<text>Je suis ton père</text>"
-            + "</message>";
-
-    private static final String MESSAGE_SECOND_XML =
-            "<message>"
-            + "<date>2000</date>"
-            + "<from>me</from>"
-            + "<text>Nooooon !</text>"
-            + "</message>";
-
-    private static final String MESSAGE_LIST_XML =
-            "<messageList>"
-            + MESSAGE_FIRST_XML
-            + MESSAGE_SECOND_XML
-            + "</messageList>";
-
-
-    private void writeExampleMessageListFile() throws IOException, SAXException {
-        final NodeList contactNodeList = getDocumentRootFromString(ContactTest.CONTACT_FIELD_PIERRE).getChildNodes();
-        final Contact contact = Storage.findContact(contactNodeList);
-
-        final Context context = getActivity().getApplicationContext();
-        final File conversationFile = new File(context.getFilesDir(),
-                contact.getConversationFilename());
-
-        Storage.writeStringToFile(MESSAGE_LIST_XML, conversationFile);
-    }
-
     public void testMessageParsing() {
         try {
-            final NodeList messageAttributes = getDocumentRootFromString(MESSAGE_FIRST_XML).getChildNodes();
+            final NodeList messageAttributes =
+                getDocumentRootFromString(MESSAGE_FIRST_XML).getChildNodes();
             final Message message = Storage.findMessage(messageAttributes);
 
             assertTrue(message.getDate() == 1000
@@ -83,7 +52,7 @@ public class MessageTest extends StorageTest {
 
     public void testMessageListParsing() {
         try {
-            final Node root = getDocumentRootFromString(MESSAGE_LIST_XML);
+            final Node root = getDocumentRootFromString(MESSAGE_LIST_1_XML);
             final NodeList nodeList = root.getChildNodes();
 
             verifyMessageList(Storage.findMessageList(nodeList));
@@ -95,6 +64,28 @@ public class MessageTest extends StorageTest {
     }
 
     public void testReadMessageListFromStorage() {
+        try {
+            final Context context = getInstrumentation().getContext();
+            final Storage storage = new Storage(getActivity().getApplicationContext());
+
+            // Write contacts in "contact.xml". This contact points to "messages_1.xml".
+            writeToFile(context, storage.getAppFolder(), storage.getContactFilename(),
+                        CONTACT_LIST_XML);
+
+            // Write "messages_XXX.xml" files
+            writeToFile(context, storage.getAppFolder(), MESSAGE_LIST_1_FILENAME,
+                        MESSAGE_LIST_1_XML);
+            writeToFile(context, storage.getAppFolder(), MESSAGE_LIST_2_FILENAME,
+                        MESSAGE_LIST_2_XML);
+
+            final List<Contact> contactList = storage.retrieveContactList();
+            Contact pierre = contactList.get(0);
+            final List<Message> messageList = storage.retrieveMessageList(pierre);
+
+            verifyMessageList(messageList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
