@@ -6,6 +6,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -55,8 +56,7 @@ public class ContactTest extends StorageTest {
             final Context context = getInstrumentation().getContext();
 
             final Storage storage = new Storage(getActivity().getApplicationContext());
-            Storage.writeToFile(context, storage.getAppFolder(), storage.getContactFilename(),
-                        CONTACT_LIST_XML);
+            Storage.writeToFile(new File(storage.getContactFilename()), CONTACT_LIST_XML);
 
             final List<Contact> contactList = storage.retrieveContactList();
             verifyContactList(contactList);

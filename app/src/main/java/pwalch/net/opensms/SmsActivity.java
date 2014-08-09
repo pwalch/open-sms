@@ -123,7 +123,7 @@ public class SmsActivity extends Activity
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
                 .commit();
-        Log.i("tag", "onNavigation drawer item selected tamer");
+        Log.i("tag", "onNavigation drawer item selected");
     }
 
     public void restoreActionBar() {

@@ -45,22 +45,19 @@ public class Storage {
     public Storage(Context context)
             throws IOException, ParserConfigurationException, SAXException {
         mContext = context;
-
-        File appFolder = new File(getAppFolder());
-        if (!appFolder.exists()) {
-            appFolder.mkdirs();
-        }
+        mDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+        mDocumentBuilder = mDocumentBuilderFactory.newDocumentBuilder();
 
         mContactFile = new File(getContactFilename());
 
-        // Create file if it does not exist
-        if (!mContactFile.exists()) {
-            mContactFile.createNewFile();
-            Storage.writeStringToFile("<?xml version='1.0' encoding='UTF-8'?><contacts></contacts>", mContactFile);
-        }
-
-        mDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
-        mDocumentBuilder = mDocumentBuilderFactory.newDocumentBuilder();
+        final String contactPierre = "<contact>"
+                + "<name>Pierre</name>"
+                + "<phoneNumber>+33 6 95 95 95</phoneNumber>"
+                + "<conversationFilename>messages_1.xml</conversationFilename>"
+                + "</contact>";
+        Storage.writeToFile(mContactFile, "<?xml version='1.0' encoding='UTF-8'?><contacts>"
+                + contactPierre +
+                "</contacts>");
     }
 
     protected String getAppFolder() {
@@ -71,30 +68,21 @@ public class Storage {
         return getAppFolder() + "/" + CONTACT_FILENAME;
     }
 
-    protected static void writeToFile(Context context, String folderName, String filename,
-                               String textToWrite)
+    protected static void writeToFile(File file, String textToWrite)
             throws IOException {
-        final File folder = new File(folderName);
-        if (!folder.exists()) {
-            folder.mkdirs();
+        if (!file.exists()) {
+            file.mkdirs();
+            file.createNewFile();
         }
 
-        final File fileToWrite = new File(folderName + "/" + filename);
-        if (!fileToWrite.exists()) {
-            fileToWrite.createNewFile();
-        }
-
-        Storage.writeStringToFile(textToWrite, fileToWrite);
-    }
-
-    protected static void writeStringToFile(String string, File file) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.write(string);
+        writer.write(textToWrite);
         writer.close();
     }
 
     public List<Contact> retrieveContactList() throws IOException, SAXException {
-        Document document = mDocumentBuilder.parse(new FileInputStream(new File(getContactFilename())));
+        String contactFilename = getContactFilename();
+        Document document = mDocumentBuilder.parse(new FileInputStream(new File(contactFilename)));
 
         Node root = document.getDocumentElement();
         assert root.getNodeName().equals("contacts");
