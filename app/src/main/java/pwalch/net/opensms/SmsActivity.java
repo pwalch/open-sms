@@ -67,7 +67,7 @@ public class SmsActivity extends Activity
     }
 
     private void loadConversationList() {
-        List<Contact> contactList = new ArrayList<Contact>();
+        final List<Contact> contactList = new ArrayList<Contact>();
         contactList.add(new Contact("Pierre", "100", "conv1.xml"));
         contactList.add(new Contact("Yoyo", "101", "conv2.xml"));
         contactList.add(new Contact("Yaya", "102", "conv3.xml"));
@@ -76,7 +76,7 @@ public class SmsActivity extends Activity
     }
 
     private void loadMessageList(int conversationIndex) {
-        List<Message> messageList = new ArrayList<Message>();
+        final List<Message> messageList = new ArrayList<Message>();
         messageList.add(new Message(1000, Direction.ME_TO_YOU, "Coucou"));
         messageList.add(new Message(2000, Direction.ME_TO_YOU, "Je suis un petit bonhomme en mousse et je m'amuse dans la prairie. Je me balade dans la forêt. Les vaches font des choses bizarre dans la maison."));
         for (int i = 0; i < 10; ++i) {
@@ -100,7 +100,7 @@ public class SmsActivity extends Activity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
-        FragmentManager fragmentManager = getFragmentManager();
+        final FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
                 .commit();
@@ -108,7 +108,7 @@ public class SmsActivity extends Activity
     }
 
     public void restoreActionBar() {
-        ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
@@ -133,7 +133,7 @@ public class SmsActivity extends Activity
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        final int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
         }

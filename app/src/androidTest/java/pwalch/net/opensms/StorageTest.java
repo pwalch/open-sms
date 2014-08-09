@@ -31,15 +31,15 @@ public class StorageTest extends ActivityTestCase {
     }
 
     protected Node getDocumentRootFromString(String xmlDocumentText) throws IOException, SAXException {
-        InputStream stream = new ByteArrayInputStream(
+        final InputStream stream = new ByteArrayInputStream(
                 xmlDocumentText.getBytes(Charset.defaultCharset()));
-        Document document = fDocumentBuilder.parse(stream);
+        final Document document = fDocumentBuilder.parse(stream);
         return document.getDocumentElement();
     }
 
     protected Node getDocumentRootFromFile(File xmlFile) throws IOException, SAXException {
-        InputStream stream = new FileInputStream(xmlFile);
-        Document document = fDocumentBuilder.parse(stream);
+        final InputStream stream = new FileInputStream(xmlFile);
+        final Document document = fDocumentBuilder.parse(stream);
         return document.getDocumentElement();
     }
 

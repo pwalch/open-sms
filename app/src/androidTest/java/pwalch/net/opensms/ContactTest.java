@@ -44,10 +44,10 @@ public class ContactTest extends StorageTest {
                     + CONTACT_FIELD_JON
                     + "</contactList>";
 
-    public void testContactField() {
+    public void testContactParsing() {
         try {
-            NodeList contactAttributes = getDocumentRootFromString(CONTACT_FIELD_PIERRE).getChildNodes();
-            Contact contact = Storage.findContact(contactAttributes);
+            final NodeList contactAttributes = getDocumentRootFromString(CONTACT_FIELD_PIERRE).getChildNodes();
+            final Contact contact = Storage.findContact(contactAttributes);
             assertTrue(contact.getName().equals("Pierre")
                     && contact.getNumber().equals("+33 6 95 95 95"));
         } catch (SAXException e) {
@@ -57,10 +57,10 @@ public class ContactTest extends StorageTest {
         }
     }
 
-    public void testContactList() {
+    public void testContactListParsing() {
         try {
-            Node root = getDocumentRootFromString(CONTACT_LIST_XML);
-            NodeList nodeList = root.getChildNodes();
+            final Node root = getDocumentRootFromString(CONTACT_LIST_XML);
+            final NodeList nodeList = root.getChildNodes();
 
             verifyContactList(Storage.findContactList(nodeList));
         } catch (SAXException e) {
@@ -71,15 +71,18 @@ public class ContactTest extends StorageTest {
     }
 
     private void verifyContactList(List<Contact> contactList) {
-        Contact pierre = contactList.get(0);
-        Contact jon = contactList.get(1);
+        final Contact pierre = contactList.get(0);
+        final Contact jon = contactList.get(1);
         assertTrue(pierre.getName().equals("Pierre")
                 && jon.getName().equals("Jon"));
     }
 
-    private void writeExampleContactFile() throws IOException {
-        Context context = getActivity().getApplicationContext();
-        File contactFile = new File(context.getFilesDir(), Storage.CONTACT_FILENAME);
+    private void writeExampleContactFile(Context context) throws IOException {
+        final String appFolderName = context.getFilesDir() + "/" + "open_sms";
+        final File folder = new File(appFolderName);
+        folder.mkdirs();
+
+        final File contactFile = new File(appFolderName, Storage.CONTACT_FILENAME);
 
         if (!contactFile.exists()) {
             contactFile.createNewFile();
@@ -91,10 +94,11 @@ public class ContactTest extends StorageTest {
 
     public void testReadContactListFromStorage() {
         try {
-            writeExampleContactFile();
+            final Context context = getInstrumentation().getContext();
+            writeExampleContactFile(context);
 
-            Storage storage = new Storage(getActivity().getApplicationContext());
-            List<Contact> contactList = storage.retrieveContactList();
+            final Storage storage = new Storage(getActivity().getApplicationContext());
+            final List<Contact> contactList = storage.retrieveContactList();
             verifyContactList(contactList);
         } catch (Exception e) {
             e.printStackTrace();

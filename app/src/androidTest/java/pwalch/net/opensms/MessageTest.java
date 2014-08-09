@@ -26,7 +26,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 /**
  * Created by pierre on 05.08.14.
  */
-public class MessageListTest extends StorageTest {
+public class MessageTest extends StorageTest {
 
     private static final String MESSAGE_FIRST_XML =
             "<message>"
@@ -50,20 +50,20 @@ public class MessageListTest extends StorageTest {
 
 
     private void writeExampleMessageListFile() throws IOException, SAXException {
-        NodeList contactNodeList = getDocumentRootFromString(ContactTest.CONTACT_FIELD_PIERRE).getChildNodes();
-        Contact contact = Storage.findContact(contactNodeList);
+        final NodeList contactNodeList = getDocumentRootFromString(ContactTest.CONTACT_FIELD_PIERRE).getChildNodes();
+        final Contact contact = Storage.findContact(contactNodeList);
 
-        Context context = getActivity().getApplicationContext();
-        File conversationFile = new File(context.getFilesDir(),
+        final Context context = getActivity().getApplicationContext();
+        final File conversationFile = new File(context.getFilesDir(),
                 contact.getConversationFilename());
 
         Storage.writeStringToFile(MESSAGE_LIST_XML, conversationFile);
     }
 
-    public void testMessageField() {
+    public void testMessageParsing() {
         try {
-            NodeList messageAttributes = getDocumentRootFromString(MESSAGE_FIRST_XML).getChildNodes();
-            Message message = Storage.findMessage(messageAttributes);
+            final NodeList messageAttributes = getDocumentRootFromString(MESSAGE_FIRST_XML).getChildNodes();
+            final Message message = Storage.findMessage(messageAttributes);
 
             assertTrue(message.getDate() == 1000
                         && message.getDirection() == Direction.ME_TO_YOU);
@@ -72,6 +72,30 @@ public class MessageListTest extends StorageTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void verifyMessageList(List<Message> messageList) {
+        final Message firstMessage = messageList.get(0);
+        final Message secondMessage = messageList.get(1);
+        assertTrue(firstMessage.getDate() == 1000
+                && secondMessage.getDate() == 2000);
+    }
+
+    public void testMessageListParsing() {
+        try {
+            final Node root = getDocumentRootFromString(MESSAGE_LIST_XML);
+            final NodeList nodeList = root.getChildNodes();
+
+            verifyMessageList(Storage.findMessageList(nodeList));
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testReadMessageListFromStorage() {
+
     }
 
 }

@@ -134,4 +134,15 @@ public class Storage {
 
         return new Message(date, direction, text);
     }
+
+    public static List<Message> findMessageList(NodeList messageNodeList) {
+        List<Message> messageList = new ArrayList<Message>();
+        for (int i = 0; i < messageNodeList.getLength(); ++i) {
+            Node messageNode = messageNodeList.item(i);
+            assert messageNode.hasChildNodes();
+
+            messageList.add(findMessage(messageNode.getChildNodes()));
+        }
+        return messageList;
+    }
 }
