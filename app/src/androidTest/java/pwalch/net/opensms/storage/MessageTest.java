@@ -1,27 +1,17 @@
-package pwalch.net.opensms;
+package pwalch.net.opensms.storage;
 
 import android.content.Context;
-import android.test.ActivityTestCase;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import pwalch.net.opensms.structures.Contact;
+import pwalch.net.opensms.structures.Direction;
+import pwalch.net.opensms.structures.Message;
 
 /**
  * Created by pierre on 05.08.14.
@@ -69,13 +59,13 @@ public class MessageTest extends StorageTest {
             final Storage storage = new Storage(getActivity().getApplicationContext());
 
             // Write contacts in "contact.xml". This contact points to "messages_1.xml".
-            writeToFile(context, storage.getAppFolder(), storage.getContactFilename(),
+            Storage.writeToFile(context, storage.getAppFolder(), storage.getContactFilename(),
                         CONTACT_LIST_XML);
 
             // Write "messages_XXX.xml" files
-            writeToFile(context, storage.getAppFolder(), MESSAGE_LIST_1_FILENAME,
+            Storage.writeToFile(context, storage.getAppFolder(), MESSAGE_LIST_1_FILENAME,
                         MESSAGE_LIST_1_XML);
-            writeToFile(context, storage.getAppFolder(), MESSAGE_LIST_2_FILENAME,
+            Storage.writeToFile(context, storage.getAppFolder(), MESSAGE_LIST_2_FILENAME,
                         MESSAGE_LIST_2_XML);
 
             final List<Contact> contactList = storage.retrieveContactList();

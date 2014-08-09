@@ -1,10 +1,11 @@
-package pwalch.net.opensms;
+package pwalch.net.opensms.storage;
 
 import android.content.Context;
 import android.test.ActivityTestCase;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedWriter;
@@ -117,25 +118,5 @@ public class StorageTest extends ActivityTestCase {
         final Document document = fDocumentBuilder.parse(stream);
         return document.getDocumentElement();
     }
-
-    protected void writeToFile(Context context, String folderName, String filename,
-                             String textToWrite)
-            throws IOException {
-        final File folder = new File(folderName);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-
-        final File contactFile = new File(folderName, filename);
-        if (!contactFile.exists()) {
-            contactFile.createNewFile();
-        }
-
-        BufferedWriter writer = new BufferedWriter(new FileWriter(contactFile));
-        writer.write(textToWrite);
-        writer.close();
-    }
-
-
 
 }

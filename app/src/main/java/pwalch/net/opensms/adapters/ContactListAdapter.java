@@ -1,4 +1,4 @@
-package pwalch.net.opensms;
+package pwalch.net.opensms.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.List;
+
+import pwalch.net.opensms.R;
+import pwalch.net.opensms.structures.Contact;
 
 /**
  * Created by pierre on 02/08/14.

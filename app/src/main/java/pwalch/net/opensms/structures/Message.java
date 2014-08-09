@@ -1,11 +1,4 @@
-package pwalch.net.opensms;
-
-import android.text.method.DateTimeKeyListener;
-
-import java.util.Calendar;
-import java.util.Date;
-
-enum Direction { ME_TO_YOU, YOU_TO_ME };
+package pwalch.net.opensms.structures;
 
 /**
  * Created by pierre on 31.07.14.

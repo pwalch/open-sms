@@ -13,11 +13,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.util.ArrayList;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
 import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import pwalch.net.opensms.adapters.ContactListAdapter;
+import pwalch.net.opensms.adapters.MessageListAdapter;
+import pwalch.net.opensms.storage.Storage;
+import pwalch.net.opensms.structures.Contact;
+import pwalch.net.opensms.structures.Message;
 
 public class SmsActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -38,6 +47,8 @@ public class SmsActivity extends Activity
 
     private ListView mConversationView;
 
+    private Storage mStorage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,33 +67,41 @@ public class SmsActivity extends Activity
         mContactsView = (ListView) findViewById(R.id.navigation_drawer);
 
         mConversationView = (ListView) findViewById(R.id.conversation);
+
+        try {
+            mStorage = new Storage(getApplicationContext());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        loadConversationList();
-        loadMessageList(0);
+        loadContactList();
+        //loadMessageList(0);
     }
 
-    private void loadConversationList() {
-        final List<Contact> contactList = new ArrayList<Contact>();
-        contactList.add(new Contact("Pierre", "100", "conv1.xml"));
-        contactList.add(new Contact("Yoyo", "101", "conv2.xml"));
-        contactList.add(new Contact("Yaya", "102", "conv3.xml"));
-
-        mContactsView.setAdapter(new ContactListAdapter(this, contactList));
-    }
-
-    private void loadMessageList(int conversationIndex) {
-        final List<Message> messageList = new ArrayList<Message>();
-        messageList.add(new Message(1000, Direction.ME_TO_YOU, "Coucou"));
-        messageList.add(new Message(2000, Direction.ME_TO_YOU, "Long message."));
-        for (int i = 0; i < 10; ++i) {
-            messageList.add(new Message(3000, Direction.YOU_TO_ME, "I love you."));
+    private void loadContactList() {
+        final List<Contact> contactList;
+        try {
+            contactList = mStorage.retrieveContactList();
+            mContactsView.setAdapter(new ContactListAdapter(this, contactList));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        mConversationView.setAdapter(new MessageListAdapter(this, messageList));
+    }
+
+    private void loadMessageList(int contactIndex) {
+        try {
+            final List<Contact> contactList = mStorage.retrieveContactList();
+            final List<Message> messageList;
+            messageList = mStorage.retrieveMessageList(contactList.get(contactIndex));
+            mConversationView.setAdapter(new MessageListAdapter(this, messageList));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private View findViewAtPosition(ListView listView, int position) {

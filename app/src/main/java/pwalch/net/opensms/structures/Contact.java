@@ -1,4 +1,4 @@
-package pwalch.net.opensms;
+package pwalch.net.opensms.structures;
 
 /**
  * Created by pierre on 02/08/14.

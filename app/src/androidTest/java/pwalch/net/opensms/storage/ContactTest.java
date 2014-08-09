@@ -1,25 +1,15 @@
-package pwalch.net.opensms;
+package pwalch.net.opensms.storage;
 
 import android.content.Context;
-import android.test.ActivityTestCase;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import pwalch.net.opensms.structures.Contact;
 
 /**
  * Created by pierre on 06.08.14.
@@ -65,7 +55,7 @@ public class ContactTest extends StorageTest {
             final Context context = getInstrumentation().getContext();
 
             final Storage storage = new Storage(getActivity().getApplicationContext());
-            writeToFile(context, storage.getAppFolder(), storage.getContactFilename(),
+            Storage.writeToFile(context, storage.getAppFolder(), storage.getContactFilename(),
                         CONTACT_LIST_XML);
 
             final List<Contact> contactList = storage.retrieveContactList();

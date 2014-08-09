@@ -1,23 +1,19 @@
-package pwalch.net.opensms;
+package pwalch.net.opensms.adapters;
 
-import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Build;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
+
+import pwalch.net.opensms.R;
+import pwalch.net.opensms.structures.Message;
 
 /**
  * Created by pierre on 31.07.14.
