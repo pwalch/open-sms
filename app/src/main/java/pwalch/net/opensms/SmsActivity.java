@@ -80,13 +80,11 @@ public class SmsActivity extends Activity
         super.onStart();
 
         loadContactList();
-        //loadMessageList(0);
     }
 
     private void loadContactList() {
-        final List<Contact> contactList;
         try {
-            contactList = mStorage.retrieveContactList();
+            final List<Contact> contactList = mStorage.retrieveContactList();
             mContactsView.setAdapter(new ContactListAdapter(this, contactList));
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,6 +122,7 @@ public class SmsActivity extends Activity
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
                 .commit();
         Log.i("tag", "onNavigation drawer item selected");
+        loadMessageList(position);
     }
 
     public void restoreActionBar() {

@@ -20,7 +20,7 @@ public class ContactTest extends StorageTest {
     public void testContactParsing() {
         try {
             final NodeList contactAttributes =
-                getDocumentRootFromString(CONTACT_FIELD_PIERRE).getChildNodes();
+                getDocumentRootFromString(Examples.CONTACT_ENTRY_PIERRE).getChildNodes();
             final Contact contact = Storage.findContact(contactAttributes);
             assertTrue(contact.getName().equals("Pierre")
                     && contact.getNumber().equals("+33 6 95 95 95"));
@@ -33,7 +33,7 @@ public class ContactTest extends StorageTest {
 
     public void testContactListParsing() {
         try {
-            final Node root = getDocumentRootFromString(CONTACT_LIST_XML);
+            final Node root = getDocumentRootFromString(Examples.CONTACT_LIST_XML);
             final NodeList nodeList = root.getChildNodes();
 
             verifyContactList(Storage.findContactList(nodeList));
@@ -56,7 +56,8 @@ public class ContactTest extends StorageTest {
             final Context context = getInstrumentation().getContext();
 
             final Storage storage = new Storage(getActivity().getApplicationContext());
-            Storage.writeToFile(new File(storage.getContactFilename()), CONTACT_LIST_XML);
+
+            storage.writeExampleFiles();
 
             final List<Contact> contactList = storage.retrieveContactList();
             verifyContactList(contactList);

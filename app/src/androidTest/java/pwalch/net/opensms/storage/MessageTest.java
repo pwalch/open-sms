@@ -22,7 +22,7 @@ public class MessageTest extends StorageTest {
     public void testMessageParsing() {
         try {
             final NodeList messageAttributes =
-                getDocumentRootFromString(MESSAGE_FIRST_XML).getChildNodes();
+                getDocumentRootFromString(Examples.MESSAGE_FIRST_XML).getChildNodes();
             final Message message = Storage.findMessage(messageAttributes);
 
             assertTrue(message.getDate() == 1000
@@ -43,7 +43,7 @@ public class MessageTest extends StorageTest {
 
     public void testMessageListParsing() {
         try {
-            final Node root = getDocumentRootFromString(MESSAGE_LIST_1_XML);
+            final Node root = getDocumentRootFromString(Examples.MESSAGE_LIST_1_XML);
             final NodeList nodeList = root.getChildNodes();
 
             verifyMessageList(Storage.findMessageList(nodeList));
@@ -59,14 +59,7 @@ public class MessageTest extends StorageTest {
             final Context context = getInstrumentation().getContext();
             final Storage storage = new Storage(getActivity().getApplicationContext());
 
-            // Write contacts in "contact.xml". This contact points to "messages_1.xml".
-            Storage.writeToFile(new File(storage.getContactFilename()), CONTACT_LIST_XML);
 
-            // Write "messages_XXX.xml" files
-            Storage.writeToFile(new File(storage.getAppFolder() + "/" + MESSAGE_LIST_1_FILENAME),
-                                MESSAGE_LIST_1_XML);
-            Storage.writeToFile(new File(storage.getAppFolder() + "/" + MESSAGE_LIST_2_FILENAME),
-                                MESSAGE_LIST_2_XML);
 
             final List<Contact> contactList = storage.retrieveContactList();
             Contact pierre = contactList.get(0);

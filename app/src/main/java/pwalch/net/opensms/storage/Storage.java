@@ -42,22 +42,25 @@ public class Storage {
     private static final String CONTACT_FILENAME = "contact.xml";
     private File mContactFile;
 
-    public Storage(Context context)
-            throws IOException, ParserConfigurationException, SAXException {
+    public Storage(Context context) throws ParserConfigurationException, IOException {
         mContext = context;
         mDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
         mDocumentBuilder = mDocumentBuilderFactory.newDocumentBuilder();
 
         mContactFile = new File(getContactFilename());
 
-        final String contactPierre = "<contact>"
-                + "<name>Pierre</name>"
-                + "<phoneNumber>+33 6 95 95 95</phoneNumber>"
-                + "<conversationFilename>messages_1.xml</conversationFilename>"
-                + "</contact>";
-        Storage.writeToFile(mContactFile, "<?xml version='1.0' encoding='UTF-8'?><contacts>"
-                + contactPierre +
-                "</contacts>");
+        writeExampleFiles();
+    }
+
+    protected void writeExampleFiles() throws IOException {
+        // Write contacts in "contact.xml". This contact points to "messages_1.xml".
+        InternalStorage.writeToFile(new File(getContactFilename()), Examples.CONTACT_LIST_XML);
+
+        // Write "messages_XXX.xml" files
+        InternalStorage.writeToFile(new File(getAppFolder() + "/" + Examples.MESSAGE_LIST_1_FILENAME),
+                Examples.MESSAGE_LIST_1_XML);
+        InternalStorage.writeToFile(new File(getAppFolder() + "/" + Examples.MESSAGE_LIST_2_FILENAME),
+                Examples.MESSAGE_LIST_2_XML);
     }
 
     protected String getAppFolder() {
@@ -68,21 +71,10 @@ public class Storage {
         return getAppFolder() + "/" + CONTACT_FILENAME;
     }
 
-    protected static void writeToFile(File file, String textToWrite)
-            throws IOException {
-        if (!file.exists()) {
-            file.mkdirs();
-            file.createNewFile();
-        }
-
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.write(textToWrite);
-        writer.close();
-    }
-
     public List<Contact> retrieveContactList() throws IOException, SAXException {
-        String contactFilename = getContactFilename();
-        Document document = mDocumentBuilder.parse(new FileInputStream(new File(contactFilename)));
+        Document document = mDocumentBuilder.parse(
+                                new FileInputStream(
+                                    new File(getContactFilename())));
 
         Node root = document.getDocumentElement();
         assert root.getNodeName().equals("contacts");
