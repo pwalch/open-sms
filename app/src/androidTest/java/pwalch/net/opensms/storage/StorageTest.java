@@ -31,12 +31,18 @@ public class StorageTest extends ActivityTestCase {
         fDocumentBuilder = fDocumentBuilderFactory.newDocumentBuilder();
     }
 
+    private InputStream getStreamFromString(String xmlDocumentText) {
+        return new ByteArrayInputStream(
+                xmlDocumentText.getBytes(Charset.defaultCharset()));
+    }
+
     protected Node getDocumentRootFromString(String xmlDocumentText)
             throws IOException, SAXException {
-        final InputStream stream = new ByteArrayInputStream(
-                xmlDocumentText.getBytes(Charset.defaultCharset()));
-        final Document document = fDocumentBuilder.parse(stream);
-        return document.getDocumentElement();
+        return getDocumentFromString(xmlDocumentText).getDocumentElement();
+    }
+
+    protected Document getDocumentFromString(String xmlDocumentText) throws IOException, SAXException {
+        return fDocumentBuilder.parse(getStreamFromString(xmlDocumentText));
     }
 
     protected void writeExampleFiles(Storage storage) throws IOException {

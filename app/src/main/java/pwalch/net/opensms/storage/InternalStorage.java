@@ -11,6 +11,7 @@ import java.io.IOException;
 public class InternalStorage {
     protected static void writeToFile(File file, String textToWrite)
             throws IOException {
+        assert file != null && textToWrite != null;
         if (!file.exists()) {
             File parentFile = file.getParentFile();
             if (parentFile != null && !parentFile.exists()) {

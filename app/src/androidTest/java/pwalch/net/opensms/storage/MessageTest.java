@@ -1,5 +1,7 @@
 package pwalch.net.opensms.storage;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -55,7 +57,21 @@ public class MessageTest extends StorageTest {
     }
 
     public void testWriteMessage() throws IOException, SAXException {
-        final Node root = getDocumentRootFromString(Examples.MESSAGE_LIST_1_XML);
+        final Document document = getDocumentFromString(Examples.MESSAGE_LIST_1_XML);
+//        Element newMessage = dom.createElement("Message");
+//        contact.appendChild(newMessage);
+
+        // Create message object
+
+        // Convert message object to DOM element
+
+        // Add DOM element to DOM document
+
+            // Put element at end of messageList tag
+
+        // Convert dom document to string
+
+        // Assert string
     }
 
 }
