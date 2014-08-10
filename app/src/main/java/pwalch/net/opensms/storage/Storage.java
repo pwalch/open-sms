@@ -1,23 +1,15 @@
 package pwalch.net.opensms.storage;
 
 import android.content.Context;
-import android.graphics.Path;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,35 +32,19 @@ public class Storage {
 
     private static final String APP_FOLDER = "open_sms";
     private static final String CONTACT_FILENAME = "contact.xml";
-    private File mContactFile;
 
     public Storage(Context context) throws ParserConfigurationException, IOException {
         mContext = context;
         mDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
         mDocumentBuilder = mDocumentBuilderFactory.newDocumentBuilder();
-
-        mContactFile = new File(getContactFilename());
-
-        writeExampleFiles();
     }
 
-    protected void writeExampleFiles() throws IOException {
-        // Write contacts in "contact.xml". This contact points to "messages_1.xml".
-        InternalStorage.writeToFile(new File(getContactFilename()), Examples.CONTACT_LIST_XML);
-
-        // Write "messages_XXX.xml" files
-        InternalStorage.writeToFile(new File(getAppFolder() + "/" + Examples.MESSAGE_LIST_1_FILENAME),
-                Examples.MESSAGE_LIST_1_XML);
-        InternalStorage.writeToFile(new File(getAppFolder() + "/" + Examples.MESSAGE_LIST_2_FILENAME),
-                Examples.MESSAGE_LIST_2_XML);
-    }
-
-    protected String getAppFolder() {
-        return mContext.getFilesDir() + "/" + Storage.APP_FOLDER;
+    protected String getAppFolderName() {
+        return mContext.getFilesDir().getAbsolutePath() + "/" + Storage.APP_FOLDER;
     }
 
     protected String getContactFilename() {
-        return getAppFolder() + "/" + CONTACT_FILENAME;
+        return getAppFolderName() + "/" + CONTACT_FILENAME;
     }
 
     public List<Contact> retrieveContactList() throws IOException, SAXException {
@@ -159,7 +135,7 @@ public class Storage {
     public List<Message> retrieveMessageList(Contact contact)
             throws IOException, SAXException {
         // Read and parse message list file
-        File messageListFile = new File(getAppFolder() + "/" + contact.getMessageListFilename());
+        File messageListFile = new File(getAppFolderName() + "/" + contact.getMessageListFilename());
         Document messageListDocument = mDocumentBuilder.parse(messageListFile);
         Node root = messageListDocument.getDocumentElement();
         assert root.getNodeName().equals("message");

@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import pwalch.net.opensms.structures.Contact;
 
 /**
@@ -17,31 +19,19 @@ import pwalch.net.opensms.structures.Contact;
  */
 public class ContactTest extends StorageTest {
 
-    public void testContactParsing() {
-        try {
-            final NodeList contactAttributes =
-                getDocumentRootFromString(Examples.CONTACT_ENTRY_PIERRE).getChildNodes();
-            final Contact contact = Storage.findContact(contactAttributes);
-            assertTrue(contact.getName().equals("Pierre")
-                    && contact.getNumber().equals("+33 6 95 95 95"));
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void testContactParsing() throws IOException, SAXException {
+        final NodeList contactAttributes =
+            getDocumentRootFromString(Examples.CONTACT_ENTRY_PIERRE).getChildNodes();
+        final Contact contact = Storage.findContact(contactAttributes);
+        assertTrue(contact.getName().equals("Pierre")
+                && contact.getNumber().equals("+33 6 95 95 95"));
     }
 
-    public void testContactListParsing() {
-        try {
-            final Node root = getDocumentRootFromString(Examples.CONTACT_LIST_XML);
-            final NodeList nodeList = root.getChildNodes();
+    public void testContactListParsing() throws IOException, SAXException {
+        final Node root = getDocumentRootFromString(Examples.CONTACT_LIST_XML);
+        final NodeList nodeList = root.getChildNodes();
 
-            verifyContactList(Storage.findContactList(nodeList));
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        verifyContactList(Storage.findContactList(nodeList));
     }
 
     private void verifyContactList(List<Contact> contactList) {
@@ -51,19 +41,12 @@ public class ContactTest extends StorageTest {
                 && jon.getName().equals("Jon"));
     }
 
-    public void testReadContactListFromStorage() {
-        try {
-            final Context context = getInstrumentation().getContext();
+    public void testReadContactListFromStorage() throws IOException, ParserConfigurationException, SAXException {
+        final Storage storage = new Storage(this.findContext());
+        writeContactFile(storage.getContactFilename());
 
-            final Storage storage = new Storage(getActivity().getApplicationContext());
-
-            storage.writeExampleFiles();
-
-            final List<Contact> contactList = storage.retrieveContactList();
-            verifyContactList(contactList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        final List<Contact> contactList = storage.retrieveContactList();
+        verifyContactList(contactList);
     }
 
 }
