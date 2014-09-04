@@ -13,19 +13,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import pwalch.net.opensms.adapters.ContactListAdapter;
 import pwalch.net.opensms.adapters.MessageListAdapter;
 import pwalch.net.opensms.storage.Storage;
 import pwalch.net.opensms.structures.Contact;
+import pwalch.net.opensms.structures.Direction;
 import pwalch.net.opensms.structures.Message;
 
 public class SmsActivity extends Activity
@@ -40,13 +45,14 @@ public class SmsActivity extends Activity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
-
     private DrawerLayout mDrawerLayout;
 
     private ListView mContactsView;
-
     private ListView mConversationView;
 
+    private List<Contact> mContactList;
+    private List<Message> mCurrentMessageList;
+    private Contact mCurrentContact;
     private Storage mStorage;
 
     @Override
@@ -70,7 +76,36 @@ public class SmsActivity extends Activity
 
         try {
             mStorage = new Storage(getApplicationContext());
+
+            Button button = (Button) findViewById(R.id.send_button);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    TextView messageToSend = (TextView) findViewById(R.id.message_to_send);
+                    Message message = new Message(((int) new Date().getTime()),
+                            Direction.ME_TO_YOU,
+                            messageToSend.getText().toString());
+                    messageToSend.setText("");
+
+                    sendMessage(message);
+                }
+            });
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendMessage(Message messageToSend) {
+        Log.i("tag", "Writing message to storage");
+        try {
+            mStorage.writeMessage(mCurrentContact, messageToSend);
+            loadMessageList(mCurrentContact);
+            mConversationView.setSelection(mCurrentMessageList.size() - 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
             e.printStackTrace();
         }
     }
@@ -83,20 +118,28 @@ public class SmsActivity extends Activity
     }
 
     private void loadContactList() {
+        Log.i("tag", "Loading contact list");
         try {
-            final List<Contact> contactList = mStorage.retrieveContactList();
-            mContactsView.setAdapter(new ContactListAdapter(this, contactList));
+            mContactList = mStorage.retrieveContactList();
+            mContactsView.setAdapter(new ContactListAdapter(this, mContactList));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void loadMessageList(int contactIndex) {
+    private void setContact(int contactIndex) {
+        Log.i("tag", "setContact called with index : " + contactIndex);
+        if (mContactList != null) {
+            mCurrentContact = mContactList.get(contactIndex);
+            loadMessageList(mCurrentContact);
+        }
+    }
+
+    private void loadMessageList(Contact contact) {
+        Log.i("tag", "Loading message list");
         try {
-            final List<Contact> contactList = mStorage.retrieveContactList();
-            final List<Message> messageList;
-            messageList = mStorage.retrieveMessageList(contactList.get(contactIndex));
-            mConversationView.setAdapter(new MessageListAdapter(this, messageList));
+            mCurrentMessageList = mStorage.retrieveMessageList(contact);
+            mConversationView.setAdapter(new MessageListAdapter(this, mCurrentMessageList));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -121,8 +164,7 @@ public class SmsActivity extends Activity
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
                 .commit();
-        Log.i("tag", "onNavigation drawer item selected");
-        loadMessageList(position);
+        setContact(position);
     }
 
     public void restoreActionBar() {

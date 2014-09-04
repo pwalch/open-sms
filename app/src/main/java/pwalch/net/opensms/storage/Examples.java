@@ -42,7 +42,7 @@ public class Examples {
     public static final String MESSAGE_LIST_1_FILENAME = "messages_1.xml";
 
     public static final String MESSAGE_LIST_1_XML =
-            "<messageList>"
+            "<?xml version=\"1.0\" ?><messageList>"
                     + MESSAGE_FIRST_XML
                     + MESSAGE_SECOND_XML
                     + MESSAGE_THIRD_XML
@@ -51,7 +51,7 @@ public class Examples {
     public static final String MESSAGE_LIST_2_FILENAME = "messages_2.xml";
 
     public static final String MESSAGE_LIST_2_XML =
-            "<conversation>"
+            "<?xml version=\"1.0\" ?><conversation>"
                     + MESSAGE_FOURTH_XML
                     + MESSAGE_FIFTH_XML
                     + "</conversation>";
@@ -69,7 +69,7 @@ public class Examples {
             + "</contact>";
 
     public static final String CONTACT_LIST_XML =
-            "<contactList>"
+            "<?xml version=\"1.0\" ?><contactList>"
                     + CONTACT_ENTRY_PIERRE
                     + CONTACT_ENTRY_JON
                     + "</contactList>";

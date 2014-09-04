@@ -4,9 +4,9 @@ package pwalch.net.opensms.structures;
  * Created by pierre on 31.07.14.
  */
 public class Message {
-    private String mText;
-    private Direction mDirection;
     private int mDate;
+    private Direction mDirection;
+    private String mText;
 
     public Message(int date, Direction direction, String text) {
         mDate = date;
@@ -24,5 +24,9 @@ public class Message {
 
     public int getDate() {
         return mDate;
+    }
+
+    public String toString() {
+        return getDate() + " : " + getText();
     }
 }

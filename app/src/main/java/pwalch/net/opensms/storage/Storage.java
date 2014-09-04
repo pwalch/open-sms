@@ -1,21 +1,34 @@
 package pwalch.net.opensms.storage;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import pwalch.net.opensms.structures.Contact;
 import pwalch.net.opensms.structures.Direction;
@@ -126,20 +139,80 @@ public class Storage {
         for (int i = 0; i < messageNodeList.getLength(); ++i) {
             Node messageNode = messageNodeList.item(i);
             assert messageNode.hasChildNodes();
-
             messageList.add(findMessage(messageNode.getChildNodes()));
         }
         return messageList;
     }
 
+    private File getMessageListFile(Contact contact) {
+        return new File(getAppFolderName() + "/" + contact.getMessageListFilename());
+    }
+
+    protected Document getMessageListDocument(Contact contact) throws IOException, SAXException {
+        return mDocumentBuilder.parse(getMessageListFile(contact));
+    }
+
     public List<Message> retrieveMessageList(Contact contact)
             throws IOException, SAXException {
         // Read and parse message list file
-        File messageListFile = new File(getAppFolderName() + "/" + contact.getMessageListFilename());
-        Document messageListDocument = mDocumentBuilder.parse(messageListFile);
+        Document messageListDocument = getMessageListDocument(contact);
         Node root = messageListDocument.getDocumentElement();
         assert root.getNodeName().equals("message");
 
         return findMessageList(root.getChildNodes());
+    }
+
+    public void writeMessage(Contact contact, Message message) throws IOException, SAXException, TransformerException {
+        Document messageListDocument = getMessageListDocument(contact);
+        Node root = messageListDocument.getDocumentElement();
+
+        Element dateElement = messageListDocument.createElement("date");
+        dateElement.setTextContent(Integer.toString(message.getDate()));
+
+        Element directionElement = messageListDocument.createElement("direction");
+        String directionString = "";
+        switch (message.getDirection()) {
+            case ME_TO_YOU: {
+                directionString = "me_to_you";
+                break;
+            }
+
+            case YOU_TO_ME: {
+                directionString = "you_to_me";
+            }
+
+            default: {
+                assert false;
+            }
+        }
+        directionElement.setTextContent(directionString);
+
+        Element textElement = messageListDocument.createElement("text");
+        textElement.setTextContent(message.getText());
+
+        Element messageElement = messageListDocument.createElement("message");
+        messageElement.appendChild(dateElement);
+        messageElement.appendChild(directionElement);
+        messageElement.appendChild(textElement);
+        root.appendChild(messageElement);
+
+        writeXmlDocument(getMessageListFile(contact), messageListDocument);
+    }
+
+    protected String getStringFromXmlDocument(Document xmlDocument) throws TransformerException, IOException {
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource source = new DOMSource(xmlDocument);
+        StreamResult result =  new StreamResult(new StringWriter());
+        transformer.transform(source, result);
+        String outputString = result.getWriter().toString();
+
+        return outputString;
+    }
+
+    private void writeXmlDocument(File messageListFile, Document xmlDocument) throws TransformerException, IOException {
+        String outputString = getStringFromXmlDocument(xmlDocument);
+
+        InternalStorage.writeToFile(messageListFile, outputString);
     }
 }

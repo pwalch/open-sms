@@ -7,9 +7,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import pwalch.net.opensms.structures.Contact;
 import pwalch.net.opensms.structures.Direction;
@@ -49,29 +52,27 @@ public class MessageTest extends StorageTest {
         writeContactFile(storage.getContactFilename());
         writeMessageFiles(storage.getAppFolderName());
 
-        final List<Contact> contactList = storage.retrieveContactList();
+        List<Contact> contactList = storage.retrieveContactList();
         Contact pierre = contactList.get(0);
         final List<Message> messageList = storage.retrieveMessageList(pierre);
 
         verifyMessageList(messageList);
     }
 
-    public void testWriteMessage() throws IOException, SAXException {
-        final Document document = getDocumentFromString(Examples.MESSAGE_LIST_1_XML);
-//        Element newMessage = dom.createElement("Message");
-//        contact.appendChild(newMessage);
-
+    public void testWriteMessage() throws IOException, SAXException, ParserConfigurationException, TransformerException {
         // Create message object
+        final Storage storage = new Storage(this.findContext());
+        writeContactFile(storage.getContactFilename());
+        writeMessageFiles(storage.getAppFolderName());
 
-        // Convert message object to DOM element
+        final List<Contact> contactList = storage.retrieveContactList();
+        Contact pierre = contactList.get(0);
+        Message message = new Message(4000, Direction.ME_TO_YOU, "Hein ?");
+        storage.writeMessage(pierre, message);
 
-        // Add DOM element to DOM document
-
-            // Put element at end of messageList tag
-
-        // Convert dom document to string
-
-        // Assert string
+        List<Message> messageList = storage.retrieveMessageList(pierre);
+        Message lastMessage = messageList.get(messageList.size() - 1);
+        assert lastMessage.getDate() == 4000 && lastMessage.getText().equals("Hein ?");
     }
 
 }
