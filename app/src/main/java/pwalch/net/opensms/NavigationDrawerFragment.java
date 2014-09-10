@@ -4,6 +4,7 @@ package pwalch.net.opensms;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -227,6 +228,17 @@ public class NavigationDrawerFragment extends Fragment {
         // showGlobalContextActionBar, which controls the top-left area of the action bar.
         if (mDrawerLayout != null && isDrawerOpen()) {
             inflater.inflate(R.menu.global, menu);
+
+            final NavigationDrawerFragment fragment = this;
+            MenuItem addContactItem = menu.findItem(R.id.add_contact);
+            addContactItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    Intent intent = new Intent(fragment.getActivity(), ContactActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+            });
             showGlobalContextActionBar();
         }
         super.onCreateOptionsMenu(menu, inflater);

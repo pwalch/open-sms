@@ -5,6 +5,7 @@ import android.content.Context;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
+import pwalch.net.opensms.storage.parsing.XmlParser;
 import pwalch.net.opensms.structures.Contact;
 
 /**
@@ -23,7 +26,7 @@ public class ContactTest extends StorageTest {
     public void testContactParsing() throws IOException, SAXException {
         final NodeList contactAttributes =
             getDocumentRootFromString(Examples.CONTACT_ENTRY_PIERRE).getChildNodes();
-        final Contact contact = Storage.findContact(contactAttributes);
+        final Contact contact = XmlParser.findContact(contactAttributes);
         assertTrue(contact.getName().equals("Pierre")
                 && contact.getNumber().equals("+33 6 95 95 95"));
     }
@@ -32,7 +35,7 @@ public class ContactTest extends StorageTest {
         final Node root = getDocumentRootFromString(Examples.CONTACT_LIST_XML);
         final NodeList nodeList = root.getChildNodes();
 
-        verifyContactList(Storage.findContactList(nodeList));
+        verifyContactList(XmlParser.findContactList(nodeList));
     }
 
     private void verifyContactList(List<Contact> contactList) {
@@ -50,7 +53,8 @@ public class ContactTest extends StorageTest {
         verifyContactList(contactList);
     }
 
-    public void testCreateContact() throws IOException, ParserConfigurationException, SAXException {
+    public void testCreateContact()
+            throws IOException, ParserConfigurationException, SAXException, TransformerException {
         final Storage storage = new Storage(this.findContext());
         writeContactFile(storage.getContactFilename());
 

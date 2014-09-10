@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -76,23 +78,38 @@ public class SmsActivity extends Activity
 
         try {
             mStorage = new Storage(getApplicationContext());
-
-            Button button = (Button) findViewById(R.id.send_button);
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    TextView messageToSend = (TextView) findViewById(R.id.message_to_send);
-                    Message message = new Message(((int) new Date().getTime()),
-                            Direction.ME_TO_YOU,
-                            messageToSend.getText().toString());
-                    messageToSend.setText("");
-
-                    sendMessage(message);
-                }
-            });
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Button button = (Button) findViewById(R.id.send_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextView messageToSend = (TextView) findViewById(R.id.message_to_send);
+                Message message = new Message(((int) new Date().getTime()),
+                        Direction.ME_TO_YOU,
+                        messageToSend.getText().toString());
+                messageToSend.setText("");
+
+                sendMessage(message);
+            }
+        });
+
+        hideControls(true);
+    }
+
+    private void hideControls(boolean isHidden) {
+        int visibility = View.VISIBLE;
+        if (isHidden) {
+            visibility = View.INVISIBLE;
+        }
+
+        Button button = (Button) findViewById(R.id.send_button);
+        button.setVisibility(visibility);
+
+        EditText messageToSend = (EditText) findViewById(R.id.message_to_send);
+        messageToSend.setVisibility(visibility);
     }
 
     private void sendMessage(Message messageToSend) {
@@ -113,6 +130,25 @@ public class SmsActivity extends Activity
     @Override
     protected void onStart() {
         super.onStart();
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String contactName = extras.getString(ContactActivity.CONTACT_NAME_EXTRA);
+            String contactNumber = extras.getString(ContactActivity.CONTACT_NAME_EXTRA);
+
+            extras.clear();
+            try {
+                mStorage.addContact(contactName, contactNumber);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            } catch (TransformerException e) {
+                e.printStackTrace();
+            }
+        }
 
         loadContactList();
     }
@@ -143,6 +179,8 @@ public class SmsActivity extends Activity
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        hideControls(false);
     }
 
     private View findViewAtPosition(ListView listView, int position) {

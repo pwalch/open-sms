@@ -1,6 +1,7 @@
 package pwalch.net.opensms;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,23 +14,29 @@ import pwalch.net.opensms.structures.Contact;
 
 public class ContactActivity extends Activity {
 
+    public static final String CONTACT_NAME_EXTRA = "contactName";
+    public static final String CONTACT_NUMBER_EXTRA = "contactPhoneNumber";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
 
-        Button button = (Button) findViewById(R.id.send_button);
+        Button button = (Button) findViewById(R.id.contact_add_button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText contactName = (EditText) findViewById(R.id.contact_name);
-                EditText contactNumber = (EditText) findViewById(R.id.contact_number);
+                EditText contactNameView = (EditText) findViewById(R.id.contact_name);
+                EditText contactNumberView = (EditText) findViewById(R.id.contact_number);
 
-                // TODO find an available conversation filename, create Application class
-                // to share data between activities
-                //Contact contact = new Contact(contactName.getText(), contactNumber.getText());
-                contactName.setText("");
-                contactNumber.setText("");
+                Intent intent = new Intent(getBaseContext(), SmsActivity.class);
+                intent.putExtra(CONTACT_NAME_EXTRA, contactNameView.getText().toString());
+                intent.putExtra(CONTACT_NUMBER_EXTRA, contactNumberView.getText().toString());
+
+                contactNameView.setText("");
+                contactNumberView.setText("");
+
+                startActivity(intent);
             }
         });
     }

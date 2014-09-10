@@ -2,6 +2,7 @@ package pwalch.net.opensms.storage;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.Xml;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,6 +20,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,6 +33,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import pwalch.net.opensms.storage.parsing.XmlParser;
 import pwalch.net.opensms.structures.Contact;
 import pwalch.net.opensms.structures.Direction;
 import pwalch.net.opensms.structures.Message;
@@ -47,29 +50,25 @@ public class Storage {
     private static final String APP_FOLDER = "open_sms";
     private static final String CONTACT_FILENAME = "contact.xml";
 
-    public Storage(Context context) throws ParserConfigurationException, IOException {
+    public Storage(Context context) throws ParserConfigurationException {
         mContext = context;
         mDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
         mDocumentBuilder = mDocumentBuilderFactory.newDocumentBuilder();
+    }
 
+    protected void initializeContactListFile() throws IOException {
         File contactFile = new File(getContactFilename());
         if (!contactFile.exists()) {
-            contactFile.createNewFile();
-            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(contactFile));
-            writer.write("<?xml version=\"1.0\" ?><conversation>\n<contactList></contactList>");
-            writer.close();
+            Log.i("tag", "Trying to create file : " + contactFile.getPath());
+            InternalStorage.writeToFile(
+                contactFile,
+                "<?xml version=\"1.0\" ?>\n<contactList></contactList>");
         }
     }
 
-    protected String getAppFolderName() {
-        return mContext.getFilesDir().getAbsolutePath() + "/" + Storage.APP_FOLDER;
-    }
-
-    protected String getContactFilename() {
-        return getAppFolderName() + "/" + CONTACT_FILENAME;
-    }
-
     public List<Contact> retrieveContactList() throws IOException, SAXException {
+        initializeContactListFile();
+
         Document document = mDocumentBuilder.parse(
                                 new FileInputStream(
                                     new File(getContactFilename())));
@@ -77,101 +76,71 @@ public class Storage {
         Node root = document.getDocumentElement();
         assert root.getNodeName().equals("contacts");
 
-        return findContactList(root.getChildNodes());
+        return XmlParser.findContactList(root.getChildNodes());
     }
 
-    protected static List<Contact> findContactList(NodeList contactNodeList) {
-        List<Contact> contactList = new ArrayList<Contact>();
-        for (int i = 0; i < contactNodeList.getLength(); ++i) {
-            Node contactNode = contactNodeList.item(i);
-            assert contactNode.hasChildNodes();
+    public void addContact(String contactName, String contactNumber)
+            throws IOException, SAXException, TransformerException {
+        initializeContactListFile();
 
-            contactList.add(findContact(contactNode.getChildNodes()));
-        }
-        return contactList;
-    }
-
-    protected static Contact findContact(NodeList contactAttributeList) {
-        String contactName = "";
-        String contactPhoneNumber = "";
-        String contactConversationFile = "";
-        for (int j = 0; j < contactAttributeList.getLength(); ++j) {
-            Node attributeNode = contactAttributeList.item(j);
-            String attributeName = attributeNode.getNodeName();
-            String attributeValue = attributeNode.getTextContent();
-
-            if (attributeName.equals("name")) {
-                contactName = attributeValue;
-            } else if (attributeName.equals("phoneNumber")) {
-                contactPhoneNumber = attributeValue;
-            } else if (attributeName.equals("conversationFilename")) {
-                contactConversationFile = attributeValue;
-            } else {
-                assert false;
-            }
+        Log.i("tag", "Adding contact to storage");
+        if (containsContact(retrieveContactList(), contactName)) {
+            throw new IllegalArgumentException("Contact already exists");
         }
 
-        return new Contact(contactName, contactPhoneNumber, contactConversationFile);
+        String uniqueFilename = "conversation_" + UUID.randomUUID().toString() + ".xml";
+        new File(getAppFolderName() + "/" + uniqueFilename).createNewFile();
+
+        Contact contact = new Contact(contactName, contactNumber, uniqueFilename);
+        writeContact(contact);
+
+        initializeContactMessageList(contact);
     }
 
-    protected static Message findMessage(NodeList messageAttributeList) {
-        int date = 0;
-        Direction direction = Direction.ME_TO_YOU;
-        String text = "";
-        for (int j = 0; j < messageAttributeList.getLength(); ++j) {
-            Node attributeNode = messageAttributeList.item(j);
-            String attributeName = attributeNode.getNodeName();
-            String attributeValue = attributeNode.getTextContent();
-
-            if (attributeName.equals("date")) {
-                date = Integer.parseInt(attributeValue);
-            } else if (attributeName.equals("direction")) {
-                if (attributeValue.equals("me_to_you")) {
-                    direction = Direction.ME_TO_YOU;
-                } else if (attributeValue.equals("you_to_me")) {
-                    direction = Direction.YOU_TO_ME;
-                } else {
-                    assert false;
-                }
-            } else if (attributeName.equals("text")) {
-                text = attributeValue;
-            } else {
-                assert false;
-            }
-        }
-
-        return new Message(date, direction, text);
+    protected void initializeContactMessageList(Contact contact) throws IOException {
+        File messageListFile = getMessageListFile(contact);
+        InternalStorage.writeToFile(
+            messageListFile,
+            "<?xml version=\"1.0\" ?>\n<messageList></messageList>");
     }
 
-    protected static List<Message> findMessageList(NodeList messageNodeList) {
-        List<Message> messageList = new ArrayList<Message>();
-        for (int i = 0; i < messageNodeList.getLength(); ++i) {
-            Node messageNode = messageNodeList.item(i);
-            assert messageNode.hasChildNodes();
-            messageList.add(findMessage(messageNode.getChildNodes()));
-        }
-        return messageList;
-    }
+    protected void writeContact(Contact contact)
+            throws IOException, SAXException, TransformerException {
+        Document contactListDocument = getContactListDocument();
+        Node root = contactListDocument.getDocumentElement();
 
-    private File getMessageListFile(Contact contact) {
-        return new File(getAppFolderName() + "/" + contact.getMessageListFilename());
-    }
+        Element nameElement = contactListDocument.createElement("name");
+        nameElement.setTextContent(contact.getName());
 
-    protected Document getMessageListDocument(Contact contact) throws IOException, SAXException {
-        return mDocumentBuilder.parse(getMessageListFile(contact));
+        Element numberElement = contactListDocument.createElement("phoneNumber");
+        numberElement.setTextContent(contact.getNumber());
+
+        Element conversationElement = contactListDocument.createElement("conversationFilename");
+        conversationElement.setTextContent(contact.getMessageListFilename());
+
+        Element contactElement = contactListDocument.createElement("contact");
+        contactElement.appendChild(nameElement);
+        contactElement.appendChild(numberElement);
+        contactElement.appendChild(conversationElement);
+
+        root.appendChild(contactElement);
+
+        writeXmlDocument(getContactListFile(), contactListDocument);
     }
 
     public List<Message> retrieveMessageList(Contact contact)
             throws IOException, SAXException {
         // Read and parse message list file
+        Log.i("tag", "Retrieving message list at : " + contact.getMessageListFilename());
         Document messageListDocument = getMessageListDocument(contact);
         Node root = messageListDocument.getDocumentElement();
         assert root.getNodeName().equals("message");
 
-        return findMessageList(root.getChildNodes());
+        return XmlParser.findMessageList(root.getChildNodes());
     }
 
-    public void writeMessage(Contact contact, Message message) throws IOException, SAXException, TransformerException {
+    public void writeMessage(Contact contact, Message message)
+            throws IOException, SAXException, TransformerException {
         Document messageListDocument = getMessageListDocument(contact);
         Node root = messageListDocument.getDocumentElement();
 
@@ -208,19 +177,43 @@ public class Storage {
         writeXmlDocument(getMessageListFile(contact), messageListDocument);
     }
 
-    protected String getStringFromXmlDocument(Document xmlDocument) throws TransformerException, IOException {
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        DOMSource source = new DOMSource(xmlDocument);
-        StreamResult result =  new StreamResult(new StringWriter());
-        transformer.transform(source, result);
-        String outputString = result.getWriter().toString();
-
-        return outputString;
+    public static boolean containsContact(List<Contact> contactList, String contactName) {
+        for (int i = 0; i < contactList.size(); ++i) {
+            Contact currentContact = contactList.get(i);
+            if (currentContact.getName().equals(contactName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private void writeXmlDocument(File messageListFile, Document xmlDocument) throws TransformerException, IOException {
-        String outputString = getStringFromXmlDocument(xmlDocument);
+    protected String getAppFolderName() {
+        return mContext.getFilesDir().getAbsolutePath() + "/" + Storage.APP_FOLDER;
+    }
+
+    protected String getContactFilename() {
+        return getAppFolderName() + "/" + CONTACT_FILENAME;
+    }
+
+    private File getContactListFile() {
+        return new File(getContactFilename());
+    }
+
+    private File getMessageListFile(Contact contact) {
+        return new File(getAppFolderName() + "/" + contact.getMessageListFilename());
+    }
+
+    protected Document getMessageListDocument(Contact contact) throws IOException, SAXException {
+        return mDocumentBuilder.parse(getMessageListFile(contact));
+    }
+
+    protected Document getContactListDocument() throws IOException, SAXException {
+        return mDocumentBuilder.parse(getContactListFile());
+    }
+
+    private void writeXmlDocument(File messageListFile, Document xmlDocument)
+            throws TransformerException, IOException {
+        String outputString = XmlParser.getStringFromXmlDocument(xmlDocument);
 
         InternalStorage.writeToFile(messageListFile, outputString);
     }

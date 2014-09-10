@@ -5,6 +5,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -14,6 +15,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import pwalch.net.opensms.storage.parsing.XmlParser;
 import pwalch.net.opensms.structures.Contact;
 import pwalch.net.opensms.structures.Direction;
 import pwalch.net.opensms.structures.Message;
@@ -26,7 +28,7 @@ public class MessageTest extends StorageTest {
     public void testMessageParsing() throws IOException, SAXException {
         final NodeList messageAttributes =
             getDocumentRootFromString(Examples.MESSAGE_FIRST_XML).getChildNodes();
-        final Message message = Storage.findMessage(messageAttributes);
+        final Message message = XmlParser.findMessage(messageAttributes);
 
         assertTrue(message.getDate() == 1000
                     && message.getDirection() == Direction.ME_TO_YOU);
@@ -43,7 +45,7 @@ public class MessageTest extends StorageTest {
         final Node root = getDocumentRootFromString(Examples.MESSAGE_LIST_1_XML);
         final NodeList nodeList = root.getChildNodes();
 
-        verifyMessageList(Storage.findMessageList(nodeList));
+        verifyMessageList(XmlParser.findMessageList(nodeList));
     }
 
     public void testReadMessageListFromStorage() throws IOException, ParserConfigurationException, SAXException {
