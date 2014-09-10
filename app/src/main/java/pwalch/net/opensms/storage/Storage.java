@@ -33,11 +33,11 @@ public class Storage {
 
     public List<Contact> retrieveContactList()
             throws IOException, SAXException, TransformerException {
+        Log.i("tag", "Retrieving contact list from storage");
         Document document = mInternalStorage.readContactListFile();
         Node root = document.getDocumentElement();
-        assert root.getNodeName().equals("contacts");
 
-        return XmlParser.findContactList(root.getChildNodes());
+        return XmlParser.findContactList(root);
     }
 
     public void addContact(String contactName, String contactNumber)
@@ -61,44 +61,17 @@ public class Storage {
 
         Document messageListDocument = mInternalStorage.readMessageListFile(contact);
         Node root = messageListDocument.getDocumentElement();
-        assert root.getNodeName().equals("message");
 
-        return XmlParser.findMessageList(root.getChildNodes());
+        return XmlParser.findMessageList(root);
     }
 
     public void addMessage(Contact contact, Message message)
             throws IOException, SAXException, TransformerException {
+        Log.i("tag", "Adding message to message list of a contact");
         Document messageListDocument = mInternalStorage.readMessageListFile(contact);
         Node root = messageListDocument.getDocumentElement();
 
-        Element dateElement = messageListDocument.createElement("date");
-        dateElement.setTextContent(Integer.toString(message.getDate()));
-
-        Element directionElement = messageListDocument.createElement("direction");
-        String directionString = "";
-        switch (message.getDirection()) {
-            case ME_TO_YOU: {
-                directionString = "me_to_you";
-                break;
-            }
-
-            case YOU_TO_ME: {
-                directionString = "you_to_me";
-            }
-
-            default: {
-                assert false;
-            }
-        }
-        directionElement.setTextContent(directionString);
-
-        Element textElement = messageListDocument.createElement("text");
-        textElement.setTextContent(message.getText());
-
-        Element messageElement = messageListDocument.createElement("message");
-        messageElement.appendChild(dateElement);
-        messageElement.appendChild(directionElement);
-        messageElement.appendChild(textElement);
+        Element messageElement = XmlParser.generateMessageElement(messageListDocument, message);
         root.appendChild(messageElement);
 
         mInternalStorage.writeMessageListFile(contact, messageListDocument);
@@ -109,20 +82,7 @@ public class Storage {
         Document contactListDocument = mInternalStorage.readContactListFile();
         Node root = contactListDocument.getDocumentElement();
 
-        Element nameElement = contactListDocument.createElement("name");
-        nameElement.setTextContent(contact.getName());
-
-        Element numberElement = contactListDocument.createElement("phoneNumber");
-        numberElement.setTextContent(contact.getNumber());
-
-        Element conversationElement = contactListDocument.createElement("conversationFilename");
-        conversationElement.setTextContent(contact.getMessageListFilename());
-
-        Element contactElement = contactListDocument.createElement("contact");
-        contactElement.appendChild(nameElement);
-        contactElement.appendChild(numberElement);
-        contactElement.appendChild(conversationElement);
-
+        Element contactElement = XmlParser.generateContactElement(contactListDocument, contact);
         root.appendChild(contactElement);
 
         mInternalStorage.writeContactListFile(contactListDocument);

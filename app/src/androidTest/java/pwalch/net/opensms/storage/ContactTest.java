@@ -1,5 +1,7 @@
 package pwalch.net.opensms.storage;
 
+import junit.framework.Assert;
+
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -67,7 +69,7 @@ public class ContactTest extends StorageTest {
             }
         }
 
-        assert isFound;
+        Assert.assertTrue(isFound);
     }
 
 }

@@ -3,6 +3,8 @@ package pwalch.net.opensms.storage;
 import android.content.Context;
 import android.util.Log;
 
+import junit.framework.Assert;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -99,7 +101,7 @@ public class InternalStorage {
     private void createContactListFile(File contactListFile)
             throws TransformerException, SAXException, IOException {
         Log.i("tag", "Creating contact list file");
-        assert !contactListFile.exists();
+        Assert.assertTrue(!contactListFile.exists());
 
         contactListFile.createNewFile();
         writeToFile(contactListFile,
@@ -154,8 +156,8 @@ public class InternalStorage {
 
     private void writeToFile(File file, String textToWrite)
             throws IOException {
-        assert file != null && textToWrite != null
-                && file.exists() && file.isFile();
+        Assert.assertTrue(file != null && textToWrite != null
+                && file.exists() && file.isFile());
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         writer.write(textToWrite);
         writer.close();

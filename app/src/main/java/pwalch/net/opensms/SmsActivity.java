@@ -112,7 +112,6 @@ public class SmsActivity extends Activity
     }
 
     private void sendMessage(Message messageToSend) {
-        Log.i("tag", "Writing message to storage");
         try {
             mStorage.addMessage(mCurrentContact, messageToSend);
             loadMessageList(mCurrentContact);

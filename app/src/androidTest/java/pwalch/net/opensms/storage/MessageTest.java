@@ -1,5 +1,7 @@
 package pwalch.net.opensms.storage;
 
+import junit.framework.Assert;
+
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -68,7 +70,7 @@ public class MessageTest extends StorageTest {
 
         List<Message> messageList = storage.retrieveMessageList(pierre);
         Message lastMessage = messageList.get(messageList.size() - 1);
-        assert lastMessage.getDate() == 4000 && lastMessage.getText().equals("Hein ?");
+        Assert.assertTrue(lastMessage.getDate() == 4000 && lastMessage.getText().equals("Hein ?"));
     }
 
 }
