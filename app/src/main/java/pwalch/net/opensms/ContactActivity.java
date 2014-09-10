@@ -30,8 +30,6 @@ public class ContactActivity extends Activity {
                 //Contact contact = new Contact(contactName.getText(), contactNumber.getText());
                 contactName.setText("");
                 contactNumber.setText("");
-
-
             }
         });
     }

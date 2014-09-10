@@ -8,6 +8,7 @@ import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,6 +48,28 @@ public class ContactTest extends StorageTest {
 
         final List<Contact> contactList = storage.retrieveContactList();
         verifyContactList(contactList);
+    }
+
+    public void testCreateContact() throws IOException, ParserConfigurationException, SAXException {
+        final Storage storage = new Storage(this.findContext());
+        writeContactFile(storage.getContactFilename());
+
+        String contactName = "Droid";
+        String contactNumber = "+41 79 123 12 13";
+        storage.addContact(contactName, contactNumber);
+
+        List<Contact> contactList = storage.retrieveContactList();
+        boolean isFound = false;
+        for (int i = 0; i < contactList.size(); ++i) {
+            Contact currentContact = contactList.get(i);
+            if (currentContact.getName().equals(contactName)
+                    && currentContact.getNumber().equals(contactNumber)) {
+                isFound = true;
+                break;
+            }
+        }
+
+        assert isFound;
     }
 
 }

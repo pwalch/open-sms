@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,14 @@ public class Storage {
         mContext = context;
         mDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
         mDocumentBuilder = mDocumentBuilderFactory.newDocumentBuilder();
+
+        File contactFile = new File(getContactFilename());
+        if (!contactFile.exists()) {
+            contactFile.createNewFile();
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(contactFile));
+            writer.write("<?xml version=\"1.0\" ?><conversation>\n<contactList></contactList>");
+            writer.close();
+        }
     }
 
     protected String getAppFolderName() {
