@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -115,7 +114,7 @@ public class SmsActivity extends Activity
     private void sendMessage(Message messageToSend) {
         Log.i("tag", "Writing message to storage");
         try {
-            mStorage.writeMessage(mCurrentContact, messageToSend);
+            mStorage.addMessage(mCurrentContact, messageToSend);
             loadMessageList(mCurrentContact);
             mConversationView.setSelection(mCurrentMessageList.size() - 1);
         } catch (IOException e) {

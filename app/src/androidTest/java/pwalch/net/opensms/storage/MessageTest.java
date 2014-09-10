@@ -1,21 +1,15 @@
 package pwalch.net.opensms.storage;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.xmlpull.v1.XmlPullParser;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import pwalch.net.opensms.storage.parsing.XmlParser;
 import pwalch.net.opensms.structures.Contact;
 import pwalch.net.opensms.structures.Direction;
 import pwalch.net.opensms.structures.Message;
@@ -70,7 +64,7 @@ public class MessageTest extends StorageTest {
         final List<Contact> contactList = storage.retrieveContactList();
         Contact pierre = contactList.get(0);
         Message message = new Message(4000, Direction.ME_TO_YOU, "Hein ?");
-        storage.writeMessage(pierre, message);
+        storage.addMessage(pierre, message);
 
         List<Message> messageList = storage.retrieveMessageList(pierre);
         Message lastMessage = messageList.get(messageList.size() - 1);
