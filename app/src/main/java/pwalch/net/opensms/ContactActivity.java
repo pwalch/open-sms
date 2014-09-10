@@ -3,13 +3,13 @@ package pwalch.net.opensms;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.telephony.PhoneNumberFormattingTextWatcher;
+import android.telephony.PhoneNumberUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
-import pwalch.net.opensms.structures.Contact;
 
 
 public class ContactActivity extends Activity {
@@ -22,25 +22,67 @@ public class ContactActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
 
+        EditText phoneNumberView = (EditText) findViewById(R.id.contact_phone_number);
+        phoneNumberView.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
+//        phoneNumberView.addTextChangedListener(new TextWatcher() {
+//            private boolean isReentring = false;
+//
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+//                // Do nothing
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+//                // Do nothing
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//                if (!isReentring) {
+//                    isReentring = true;
+//                    PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+//                    try {
+//                        Phonenumber.PhoneNumber actualPhoneNumber = phoneUtil.parse(editable.toString(),
+//                                "ZZ");
+//                        String formattedPhoneNumber =
+//                                phoneUtil.format(actualPhoneNumber,
+//                                        PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+//                        editable.clear();
+//                        editable.insert(0, formattedPhoneNumber);
+//                        Log.i("tag", "Formatted phone number : " + formattedPhoneNumber);
+//                    } catch (NumberParseException e) {
+//                        // Do nothing, not an international number
+//                    }
+//                    isReentring = false;
+//                }
+//            }
+//        });
+
         Button button = (Button) findViewById(R.id.contact_add_button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText contactNameView = (EditText) findViewById(R.id.contact_name);
-                EditText contactNumberView = (EditText) findViewById(R.id.contact_number);
+                EditText contactPhoneNumberView = (EditText) findViewById(R.id.contact_phone_number);
 
-                Intent intent = new Intent(getBaseContext(), SmsActivity.class);
-                intent.putExtra(CONTACT_NAME_EXTRA, contactNameView.getText().toString());
-                intent.putExtra(CONTACT_NUMBER_EXTRA, contactNumberView.getText().toString());
+                String contactName = contactNameView.getText().toString();
+                String contactPhoneNumber = contactPhoneNumberView.getText().toString();
 
-                contactNameView.setText("");
-                contactNumberView.setText("");
+                if (!contactName.isEmpty() && !contactPhoneNumber.isEmpty()
+                        && PhoneNumberUtils.isGlobalPhoneNumber(contactPhoneNumber)) {
+                    Intent intent = new Intent(getBaseContext(), SmsActivity.class);
+                    intent.putExtra(CONTACT_NAME_EXTRA, contactName);
+                    intent.putExtra(CONTACT_NUMBER_EXTRA, contactPhoneNumber);
 
-                startActivity(intent);
+                    contactNameView.setText("");
+                    contactPhoneNumberView.setText("");
+
+                    startActivity(intent);
+                }
             }
         });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
