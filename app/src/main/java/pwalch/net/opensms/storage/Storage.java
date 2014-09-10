@@ -50,23 +50,47 @@ public class Storage {
     private static final String APP_FOLDER = "open_sms";
     private static final String CONTACT_FILENAME = "contact.xml";
 
+    private static final String UID_XML_NAME = "currentUid";
+    private int mCurrentId;
+
     public Storage(Context context) throws ParserConfigurationException {
         mContext = context;
         mDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
         mDocumentBuilder = mDocumentBuilderFactory.newDocumentBuilder();
     }
 
-    protected void initializeContactListFile() throws IOException {
+    protected void initializeContactListFile()
+            throws IOException, SAXException, TransformerException {
         File contactFile = new File(getContactFilename());
         if (!contactFile.exists()) {
             Log.i("tag", "Trying to create file : " + contactFile.getPath());
             InternalStorage.writeToFile(
                 contactFile,
                 "<?xml version=\"1.0\" ?>\n<contactList></contactList>");
+            setCurrentUid(0);
+        } else {
+            mCurrentId = getCurrentUid();
         }
     }
 
-    public List<Contact> retrieveContactList() throws IOException, SAXException {
+    protected int getCurrentUid() throws IOException, SAXException {
+        Document contactDocument = getContactListDocument();
+        return Integer.parseInt(
+                contactDocument.getDocumentElement().getAttribute(
+                        UID_XML_NAME));
+    }
+
+    protected void setCurrentUid(int uid)
+            throws IOException, SAXException, TransformerException {
+        mCurrentId = uid;
+        Document contactDocument = getContactListDocument();
+        contactDocument.getDocumentElement().setAttribute(UID_XML_NAME,
+                                                          Integer.toString(mCurrentId));
+        writeXmlDocument(getContactListFile(), contactDocument);
+    }
+
+    public List<Contact> retrieveContactList()
+            throws IOException, SAXException, TransformerException {
         initializeContactListFile();
 
         Document document = mDocumentBuilder.parse(
@@ -88,7 +112,8 @@ public class Storage {
             throw new IllegalArgumentException("Contact already exists");
         }
 
-        String uniqueFilename = "conversation_" + UUID.randomUUID().toString() + ".xml";
+        String uniqueFilename = "conversation_" + mCurrentId + ".xml";
+        setCurrentUid(mCurrentId + 1);
         new File(getAppFolderName() + "/" + uniqueFilename).createNewFile();
 
         Contact contact = new Contact(contactName, contactNumber, uniqueFilename);
@@ -99,6 +124,8 @@ public class Storage {
 
     protected void initializeContactMessageList(Contact contact) throws IOException {
         File messageListFile = getMessageListFile(contact);
+
+        Log.i("tag", "Trying to create file : " + messageListFile.getPath());
         InternalStorage.writeToFile(
             messageListFile,
             "<?xml version=\"1.0\" ?>\n<messageList></messageList>");
