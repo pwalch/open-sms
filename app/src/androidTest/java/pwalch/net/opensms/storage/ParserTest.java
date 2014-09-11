@@ -79,6 +79,6 @@ public class ParserTest extends BaseTest {
         List<Message> messageList = XmlParser.findMessageList(messageNode);
 
         assertTrue(messageList.get(0).getDate() == 1000
-                && messageList.get(1).getDirection() == Direction.ME_TO_YOU);
+                && messageList.get(1).getDirection() == Direction.YOU_TO_ME);
     }
 }
