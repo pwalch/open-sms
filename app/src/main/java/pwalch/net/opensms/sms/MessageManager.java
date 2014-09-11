@@ -1,10 +1,13 @@
 package pwalch.net.opensms.sms;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Telephony;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
@@ -19,6 +22,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import pwalch.net.opensms.R;
 import pwalch.net.opensms.storage.Storage;
 import pwalch.net.opensms.structures.Contact;
 import pwalch.net.opensms.structures.Direction;
@@ -68,6 +72,15 @@ public class MessageManager extends BroadcastReceiver {
                     storage.addMessage(contact, new Message((int)(new Date()).getTime(),
                                                             Direction.YOU_TO_ME,
                                                             smsMessage.getMessageBody()));
+
+                    NotificationManager notificationManager =
+                            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    NotificationCompat.Builder builder =
+                            new NotificationCompat.Builder(context)
+                                    .setSmallIcon(R.drawable.ic_launcher)
+                                    .setContentTitle("OpenSMS")
+                                    .setContentText("Received an SMS.");
+                    notificationManager.notify(0, builder.build());
                 }
             } catch (ParserConfigurationException e) {
                 e.printStackTrace();
