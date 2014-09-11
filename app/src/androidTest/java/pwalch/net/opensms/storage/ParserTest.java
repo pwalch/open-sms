@@ -50,7 +50,7 @@ public class ParserTest extends BaseTest {
                 getDocumentFromString(ContactExamples.CONTACT_ENTRY_PIERRE).getDocumentElement();
         final Contact contact = XmlParser.findContact(contactNode);
         assertTrue(contact.getName().equals(ContactExamples.CONTACT_PIERRE_NAME)
-                && contact.getNumber().equals(ContactExamples.CONTACT_PIERRE_PHONE_NUMBER));
+                && contact.getPhoneNumber().equals(ContactExamples.CONTACT_PIERRE_PHONE_NUMBER));
     }
 
     public void testContactListParsing() throws IOException, SAXException {

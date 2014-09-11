@@ -82,7 +82,7 @@ public class XmlParser {
         nameElement.setTextContent(contact.getName());
 
         Element numberElement = contactListDocument.createElement(CONTACT_PHONE_NUMBER_ATTRIBUTE);
-        numberElement.setTextContent(contact.getNumber());
+        numberElement.setTextContent(contact.getPhoneNumber());
 
         Element conversationElement = contactListDocument.createElement(CONTACT_MESSAGE_LIST_FILENAME);
         conversationElement.setTextContent(contact.getMessageListFilename());

@@ -25,11 +25,11 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import pwalch.net.opensms.adapters.ContactListAdapter;
 import pwalch.net.opensms.adapters.MessageListAdapter;
+import pwalch.net.opensms.sms.MessageManager;
 import pwalch.net.opensms.storage.Storage;
 import pwalch.net.opensms.structures.Contact;
 import pwalch.net.opensms.structures.Direction;
@@ -126,6 +126,10 @@ public class SmsActivity extends Activity
             mStorage.addMessage(mCurrentContact, messageToSend);
             loadMessageList(mCurrentContact);
             mConversationView.setSelection(mCurrentMessageList.size() - 1);
+
+            MessageManager.sendMessage(this.getApplicationContext(),
+                                       mCurrentContact.getPhoneNumber(),
+                                       messageToSend.getText());
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SAXException e) {
@@ -140,11 +144,12 @@ public class SmsActivity extends Activity
         super.onStart();
 
         Bundle extras = getIntent().getExtras();
-        if (extras != null) {
+        if (extras != null
+                && extras.containsKey(ContactActivity.CONTACT_NAME_EXTRA)
+                && extras.containsKey(ContactActivity.CONTACT_NUMBER_EXTRA)) {
             String contactName = extras.getString(ContactActivity.CONTACT_NAME_EXTRA);
-            String contactNumber = extras.getString(ContactActivity.CONTACT_NAME_EXTRA);
+            String contactNumber = extras.getString(ContactActivity.CONTACT_NUMBER_EXTRA);
 
-            extras.clear();
             try {
                 mStorage.addContact(contactName, contactNumber);
             } catch (IllegalArgumentException e) {
@@ -159,6 +164,9 @@ public class SmsActivity extends Activity
         }
 
         loadContactList();
+        if (mCurrentContact != null) {
+            loadMessageList(mCurrentContact);
+        }
     }
 
     private void loadContactList() {

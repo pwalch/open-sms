@@ -14,6 +14,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import pwalch.net.opensms.sms.MessageManager;
 import pwalch.net.opensms.structures.Contact;
 import pwalch.net.opensms.structures.Message;
 
@@ -40,17 +41,18 @@ public class Storage {
         return XmlParser.findContactList(root);
     }
 
-    public void addContact(String contactName, String contactNumber)
+    public void addContact(String contactName, String contactPhoneNumber)
             throws IOException, SAXException, TransformerException {
         Log.i("tag", "Adding contact to storage");
 
-        if (containsContact(retrieveContactList(), contactName)) {
+        if (MessageManager.findContactWithPhoneNumber(retrieveContactList(), contactPhoneNumber)
+                != null) {
             throw new IllegalArgumentException("Contact already exists");
         }
 
         Contact contact = new Contact(
             contactName,
-            contactNumber,
+            contactPhoneNumber,
             mInternalStorage.generateMessageListFile().getName());
         writeContact(contact);
     }
@@ -86,15 +88,5 @@ public class Storage {
         root.appendChild(contactElement);
 
         mInternalStorage.writeContactListFile(contactListDocument);
-    }
-
-    private static boolean containsContact(List<Contact> contactList, String contactName) {
-        for (int i = 0; i < contactList.size(); ++i) {
-            Contact currentContact = contactList.get(i);
-            if (currentContact.getName().equals(contactName)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

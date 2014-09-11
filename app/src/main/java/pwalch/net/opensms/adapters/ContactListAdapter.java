@@ -25,7 +25,7 @@ public class ContactListAdapter extends ArrayAdapter<Contact> {
                 R.layout.contact_text, parent, false);
         TextView textView = (TextView) rowView.findViewById(R.id.contact_text_view);
         Contact contact = getItem(position);
-        textView.setText(contact.getName());
+        textView.setText(contact.getName() + " [" + contact.getPhoneNumber() + "]");
 
         return rowView;
     }

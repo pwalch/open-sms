@@ -8,9 +8,9 @@ public class Contact {
     private String mPhoneNumber;
     private String mMessageListFilename;
 
-    public Contact(String name, String number, String conversationFilename) {
+    public Contact(String name, String phoneNumber, String conversationFilename) {
         mName = name;
-        mPhoneNumber = number;
+        mPhoneNumber = phoneNumber;
         mMessageListFilename = conversationFilename;
     }
 
@@ -18,7 +18,7 @@ public class Contact {
         return mName;
     }
 
-    public String getNumber() {
+    public String getPhoneNumber() {
         return mPhoneNumber;
     }
 
