@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.xml.sax.SAXException;
 
@@ -36,6 +37,8 @@ import pwalch.net.opensms.structures.Message;
 
 public class SmsActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    private final static int SMS_LENGTH = 160;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -85,13 +88,20 @@ public class SmsActivity extends Activity
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TextView messageToSend = (TextView) findViewById(R.id.message_to_send);
-                Message message = new Message(((int) new Date().getTime()),
-                        Direction.ME_TO_YOU,
-                        messageToSend.getText().toString());
-                messageToSend.setText("");
+                final TextView messageToSend = (TextView) findViewById(R.id.message_to_send);
+                final String messageText = messageToSend.getText().toString();
 
-                sendMessage(message);
+                if (!messageText.equals("") && messageText.length() <= SMS_LENGTH) {
+                    Message message = new Message(((int) new Date().getTime()),
+                            Direction.ME_TO_YOU,
+                            messageText);
+                    messageToSend.setText("");
+
+                    sendMessage(message);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Message is invalid!",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

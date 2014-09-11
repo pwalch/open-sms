@@ -39,8 +39,8 @@ public class XmlParser {
     private static String MESSAGE_YOU_TO_ME = "you_to_me";
     private static String MESSAGE_TEXT = "text";
 
-    public static List<Contact> findContactList(Node contactNodeListRoot) {
-        NodeList contactNodeList = contactNodeListRoot.getChildNodes();
+    public static List<Contact> findContactList(Node contactNodeListRootNode) {
+        NodeList contactNodeList = contactNodeListRootNode.getChildNodes();
 
         List<Contact> contactList = new ArrayList<Contact>();
         for (int i = 0; i < contactNodeList.getLength(); ++i) {
@@ -48,12 +48,14 @@ public class XmlParser {
             Assert.assertTrue(contactNode.getNodeName().equals(CONTACT_TAG)
                 && contactNode.hasChildNodes());
 
-            contactList.add(findContact(contactNode.getChildNodes()));
+            contactList.add(findContact(contactNode));
         }
         return contactList;
     }
 
-    public static Contact findContact(NodeList contactAttributeList) {
+    public static Contact findContact(Node contactNode) {
+        NodeList contactAttributeList = contactNode.getChildNodes();
+
         String contactName = "";
         String contactPhoneNumber = "";
         String contactConversationFile = "";
@@ -94,7 +96,9 @@ public class XmlParser {
         return contactElement;
     }
 
-    public static Message findMessage(NodeList messageAttributeList) {
+    public static Message findMessage(Node messageNode) {
+        NodeList messageAttributeList = messageNode.getChildNodes();
+
         int date = 0;
         Direction direction = Direction.ME_TO_YOU;
         String text = "";
@@ -163,7 +167,7 @@ public class XmlParser {
             Node messageNode = messageNodeList.item(i);
             Assert.assertTrue(messageNode.getNodeName().equals(MESSAGE_TAG) && messageNode.hasChildNodes());
 
-            messageList.add(findMessage(messageNode.getChildNodes()));
+            messageList.add(findMessage(messageNode));
         }
         return messageList;
     }

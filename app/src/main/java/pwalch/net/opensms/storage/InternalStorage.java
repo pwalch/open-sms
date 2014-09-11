@@ -84,18 +84,29 @@ public class InternalStorage {
 
     private void initializeAppFolder()
             throws IOException, TransformerException, SAXException {
-        Log.i("tag", "Initialization app folder");
-        File contactFile = getContactListFile();
-        if (!contactFile.exists()) {
-            File parentFile = contactFile.getParentFile();
-            if (parentFile != null && !parentFile.exists()) {
-                parentFile.mkdirs();
-            }
-
-            createContactListFile(contactFile);
+        Log.i("tag", "Initializing app folder");
+        if (!getContactListFile().exists()) {
+            resetAppFolder();
         } else {
             mCurrentId = retrieveCurrentUid();
         }
+    }
+
+    protected void resetAppFolder()
+            throws IOException, TransformerException, SAXException {
+        File contactListFile = getContactListFile();
+
+        File parentFile = contactListFile.getParentFile();
+        if (parentFile != null && !parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+
+        File childArray[] = parentFile.listFiles();
+        for (File childFile : childArray) {
+            childFile.delete();
+        }
+
+        createContactListFile(contactListFile);
     }
 
     private void createContactListFile(File contactListFile)
