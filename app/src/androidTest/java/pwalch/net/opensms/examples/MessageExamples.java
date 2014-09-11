@@ -1,14 +1,22 @@
 package pwalch.net.opensms.examples;
 
+import pwalch.net.opensms.structures.Direction;
+import pwalch.net.opensms.structures.DirectionConverter;
+
 /**
  * Created by pierre on 11.09.14.
  */
 public class MessageExamples {
+
+    public static final int MESSAGE_FIRST_DATE = 1000;
+    public static final Direction MESSAGE_FIRST_DIRECTION = Direction.ME_TO_YOU;
+    public static final String MESSAGE_FIRST_TEXT = "Vous voulez un whisky ?";
+
     public static final String MESSAGE_FIRST_XML =
             "<message>"
-                    + "<date>1000</date>"
-                    + "<direction>me_to_you</direction>"
-                    + "<text>Vous voulez un whisky ?</text>"
+                    + "<date>" + MESSAGE_FIRST_DATE + "</date>"
+                    + "<direction>" + DirectionConverter.directionToText(MESSAGE_FIRST_DIRECTION) + "</direction>"
+                    + "<text>" + MESSAGE_FIRST_TEXT + "</text>"
                     + "</message>";
 
     public static final String MESSAGE_SECOND_XML =

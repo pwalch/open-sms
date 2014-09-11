@@ -20,6 +20,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import pwalch.net.opensms.structures.Contact;
 import pwalch.net.opensms.structures.Direction;
+import pwalch.net.opensms.structures.DirectionConverter;
 import pwalch.net.opensms.structures.Message;
 
 /**
@@ -35,8 +36,6 @@ public class XmlParser {
     private static String MESSAGE_TAG = "message";
     private static String MESSAGE_DATE_ATTRIBUTE = "date";
     private static String MESSAGE_DIRECTION_ATTRIBUTE = "direction";
-    private static String MESSAGE_ME_TO_YOU = "me_to_you";
-    private static String MESSAGE_YOU_TO_ME = "you_to_me";
     private static String MESSAGE_TEXT = "text";
 
     public static List<Contact> findContactList(Node contactNodeListRootNode) {
@@ -110,13 +109,7 @@ public class XmlParser {
             if (attributeName.equals(MESSAGE_DATE_ATTRIBUTE)) {
                 date = Integer.parseInt(attributeValue);
             } else if (attributeName.equals(MESSAGE_DIRECTION_ATTRIBUTE)) {
-                if (attributeValue.equals(MESSAGE_ME_TO_YOU)) {
-                    direction = Direction.ME_TO_YOU;
-                } else if (attributeValue.equals(MESSAGE_YOU_TO_ME)) {
-                    direction = Direction.YOU_TO_ME;
-                } else {
-                    Assert.assertTrue(false);
-                }
+                direction = DirectionConverter.textToDirection(attributeValue);
             } else if (attributeName.equals(MESSAGE_TEXT)) {
                 text = attributeValue;
             } else {
@@ -132,21 +125,7 @@ public class XmlParser {
         dateElement.setTextContent(Integer.toString(message.getDate()));
 
         Element directionElement = messageListDocument.createElement(MESSAGE_DIRECTION_ATTRIBUTE);
-        String directionString = "";
-        switch (message.getDirection()) {
-            case ME_TO_YOU: {
-                directionString = MESSAGE_ME_TO_YOU;
-                break;
-            }
-
-            case YOU_TO_ME: {
-                directionString = MESSAGE_YOU_TO_ME;
-            }
-
-            default: {
-                Assert.assertTrue(false);
-            }
-        }
+        String directionString = DirectionConverter.directionToText(message.getDirection());
         directionElement.setTextContent(directionString);
 
         Element textElement = messageListDocument.createElement(MESSAGE_TEXT);
