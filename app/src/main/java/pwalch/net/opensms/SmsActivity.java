@@ -125,7 +125,6 @@ public class SmsActivity extends Activity
         try {
             mStorage.addMessage(mCurrentContact, messageToSend);
             loadMessageList(mCurrentContact);
-            mConversationView.setSelection(mCurrentMessageList.size() - 1);
 
             MessageManager.sendMessage(this.getApplicationContext(),
                                        mCurrentContact.getPhoneNumber(),
@@ -197,6 +196,9 @@ public class SmsActivity extends Activity
         }
 
         hideControls(false);
+        if (mCurrentMessageList.size() >= 1) {
+            mConversationView.setSelection(mCurrentMessageList.size() - 1);
+        }
     }
 
     private View findViewAtPosition(ListView listView, int position) {

@@ -32,7 +32,6 @@ public class MessageListAdapter extends ArrayAdapter<Message> {
         Message message = getItem(position);
         textView.setText(message.getText());
 
-
         switch (message.getDirection()) {
             case ME_TO_YOU: {
                 textView.setTextColor(Color.WHITE);
