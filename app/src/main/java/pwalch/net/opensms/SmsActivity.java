@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,7 +59,11 @@ public class SmsActivity extends Activity
     private List<Contact> mContactList;
     private List<Message> mCurrentMessageList;
     private Contact mCurrentContact;
-    private Storage mStorage;
+
+    private Storage getStorage() {
+        OpenSmsApplication application = (OpenSmsApplication) getApplicationContext();
+        return application.getStorage();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,12 +83,6 @@ public class SmsActivity extends Activity
         mContactsView = (ListView) findViewById(R.id.navigation_drawer);
 
         mConversationView = (ListView) findViewById(R.id.conversation);
-
-        try {
-            mStorage = new Storage(getApplicationContext());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         Button button = (Button) findViewById(R.id.send_button);
         button.setOnClickListener(new View.OnClickListener() {
@@ -123,17 +123,15 @@ public class SmsActivity extends Activity
 
     private void sendMessage(Message messageToSend) {
         try {
-            mStorage.addMessage(mCurrentContact, messageToSend);
+            getStorage().addMessage(mCurrentContact, messageToSend);
             loadMessageList(mCurrentContact);
 
-            MessageManager.sendMessage(this.getApplicationContext(),
-                                       mCurrentContact.getPhoneNumber(),
-                                       messageToSend.getText());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
+            PendingIntent sentIntent = PendingIntent.getBroadcast(getApplicationContext(), 0,
+                                                                  new Intent("SMS_SENT"), 0);
+            MessageManager.sendMessage(mCurrentContact.getPhoneNumber(),
+                                        messageToSend.getText(),
+                                        sentIntent);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -150,14 +148,8 @@ public class SmsActivity extends Activity
             String contactNumber = extras.getString(ContactActivity.CONTACT_NUMBER_EXTRA);
 
             try {
-                mStorage.addContact(contactName, contactNumber);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
-                e.printStackTrace();
-            } catch (TransformerException e) {
+                getStorage().addContact(contactName, contactNumber);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -171,7 +163,7 @@ public class SmsActivity extends Activity
     private void loadContactList() {
         Log.i("tag", "Loading contact list");
         try {
-            mContactList = mStorage.retrieveContactList();
+            mContactList = getStorage().retrieveContactList();
             mContactsView.setAdapter(new ContactListAdapter(this, mContactList));
         } catch (Exception e) {
             e.printStackTrace();
@@ -189,7 +181,7 @@ public class SmsActivity extends Activity
     private void loadMessageList(Contact contact) {
         Log.i("tag", "Loading message list");
         try {
-            mCurrentMessageList = mStorage.retrieveMessageList(contact);
+            mCurrentMessageList = getStorage().retrieveMessageList(contact);
             mConversationView.setAdapter(new MessageListAdapter(this, mCurrentMessageList));
         } catch (Exception e) {
             e.printStackTrace();

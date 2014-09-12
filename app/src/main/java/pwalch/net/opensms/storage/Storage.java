@@ -32,7 +32,7 @@ public class Storage {
         mInternalStorage = new InternalStorage(context);
     }
 
-    public List<Contact> retrieveContactList()
+    public synchronized List<Contact> retrieveContactList()
             throws IOException, SAXException, TransformerException {
         Log.i("tag", "Retrieving contact list from storage");
         Document document = mInternalStorage.readContactListFile();
@@ -41,7 +41,7 @@ public class Storage {
         return XmlParser.findContactList(root);
     }
 
-    public void addContact(String contactName, String contactPhoneNumber)
+    public synchronized void addContact(String contactName, String contactPhoneNumber)
             throws IOException, SAXException, TransformerException {
         Log.i("tag", "Adding contact to storage");
 
@@ -57,7 +57,7 @@ public class Storage {
         writeContact(contact);
     }
 
-    public List<Message> retrieveMessageList(Contact contact)
+    public synchronized List<Message> retrieveMessageList(Contact contact)
             throws IOException, SAXException {
         Log.i("tag", "Retrieving message list at : " + contact.getMessageListFilename());
 
@@ -67,7 +67,7 @@ public class Storage {
         return XmlParser.findMessageList(root);
     }
 
-    public void addMessage(Contact contact, Message message)
+    public synchronized void addMessage(Contact contact, Message message)
             throws IOException, SAXException, TransformerException {
         Log.i("tag", "Adding message to message list of a contact");
         Document messageListDocument = mInternalStorage.readMessageListFile(contact);

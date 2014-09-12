@@ -2,6 +2,7 @@ package pwalch.net.opensms.sms;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import pwalch.net.opensms.OpenSmsApplication;
 import pwalch.net.opensms.R;
 import pwalch.net.opensms.storage.Storage;
 import pwalch.net.opensms.structures.Contact;
@@ -34,20 +36,14 @@ import pwalch.net.opensms.structures.Message;
 public class MessageManager extends BroadcastReceiver {
     private static SmsManager mSmsManager = SmsManager.getDefault();
 
-    public static void sendMessage(Context context, String phoneNumber, String text) {
-        // PendingIntent sentIntent = PendingIntent.getBroadcast(context, 0, new Intent("SMS_SENT"), 0);
-        // PendingIntent deliveredIntent = PendingIntent.getBroadcast(context, 0, new Intent("SMS_DELIVERED"), 0);
+    public static void sendMessage(String phoneNumber, String text, PendingIntent sentIntent) {
         Log.i("tag", "Sending SMS to : " + phoneNumber);
-        mSmsManager.sendTextMessage(phoneNumber, null, text, null, null);
+        mSmsManager.sendTextMessage(phoneNumber, null, text, sentIntent, null);
     }
 
-    private List<SmsMessage> generateSmsList(Bundle bundle) {
-        Object[] messageBytesArray = (Object[]) bundle.get("pdus");
-        List<SmsMessage> smsList = new ArrayList<SmsMessage>();
-        for (int i = 0; i < messageBytesArray.length; ++i) {
-            smsList.add(SmsMessage.createFromPdu((byte[])messageBytesArray[i]));
-        }
-        return smsList;
+    private Storage getStorage(Context context) {
+        OpenSmsApplication application = (OpenSmsApplication) context.getApplicationContext();
+        return application.getStorage();
     }
 
     @Override
@@ -56,8 +52,7 @@ public class MessageManager extends BroadcastReceiver {
         if (bundle != null) {
             List<SmsMessage> smsList = generateSmsList(bundle);
             try {
-                Storage storage = new Storage(context);
-
+                Storage storage = getStorage(context);
                 List<Contact> contactList = storage.retrieveContactList();
                 for (SmsMessage smsMessage : smsList) {
                     String originPhoneNumber = smsMessage.getOriginatingAddress();
@@ -82,13 +77,7 @@ public class MessageManager extends BroadcastReceiver {
                                     .setContentText("Received an SMS.");
                     notificationManager.notify(0, builder.build());
                 }
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            } catch (TransformerException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -103,5 +92,14 @@ public class MessageManager extends BroadcastReceiver {
             }
         }
         return null;
+    }
+
+    private static List<SmsMessage> generateSmsList(Bundle bundle) {
+        Object[] messageBytesArray = (Object[]) bundle.get("pdus");
+        List<SmsMessage> smsList = new ArrayList<SmsMessage>();
+        for (int i = 0; i < messageBytesArray.length; ++i) {
+            smsList.add(SmsMessage.createFromPdu((byte[])messageBytesArray[i]));
+        }
+        return smsList;
     }
 }
