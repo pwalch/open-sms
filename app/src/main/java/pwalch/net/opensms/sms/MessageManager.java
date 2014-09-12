@@ -3,6 +3,7 @@ package pwalch.net.opensms.sms;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import javax.xml.transform.TransformerException;
 
 import pwalch.net.opensms.OpenSmsApplication;
 import pwalch.net.opensms.R;
+import pwalch.net.opensms.SmsActivity;
 import pwalch.net.opensms.storage.Storage;
 import pwalch.net.opensms.structures.Contact;
 import pwalch.net.opensms.structures.Direction;
@@ -35,6 +37,8 @@ import pwalch.net.opensms.structures.Message;
  */
 public class MessageManager extends BroadcastReceiver {
     private static SmsManager mSmsManager = SmsManager.getDefault();
+
+    public static final String CONTACT_PHONE_NUMBER_INTENT_KEY = "contactPhoneNumber";
 
     public static void sendMessage(String phoneNumber, String text, PendingIntent sentIntent) {
         Log.i("tag", "Sending SMS to : " + phoneNumber);
@@ -68,19 +72,42 @@ public class MessageManager extends BroadcastReceiver {
                                                             Direction.YOU_TO_ME,
                                                             smsMessage.getMessageBody()));
 
-                    NotificationManager notificationManager =
-                            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                    NotificationCompat.Builder builder =
-                            new NotificationCompat.Builder(context)
-                                    .setSmallIcon(R.drawable.ic_launcher)
-                                    .setContentTitle("OpenSMS")
-                                    .setContentText("Received an SMS.");
-                    notificationManager.notify(0, builder.build());
+                    emitNotification(context, contact);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void emitNotification(Context context, Contact contact) {
+        Intent resultIntent = new Intent(context, SmsActivity.class);
+        resultIntent.putExtra(CONTACT_PHONE_NUMBER_INTENT_KEY, contact.getPhoneNumber());
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(SmsActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle("OpenSMS")
+                        .setContentText("Received an SMS.")
+                        .setContentIntent(resultPendingIntent);
+        Notification notification = builder.build();
+
+        notification.flags = Notification.FLAG_AUTO_CANCEL | notification.flags;
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(0, notification);
     }
 
     public static Contact findContactWithPhoneNumber(List<Contact> contactList,

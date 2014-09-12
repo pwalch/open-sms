@@ -106,6 +106,8 @@ public class SmsActivity extends Activity
         });
 
         hideControls(true);
+
+        loadContactList();
     }
 
     private void hideControls(boolean isHidden) {
@@ -124,7 +126,7 @@ public class SmsActivity extends Activity
     private void sendMessage(Message messageToSend) {
         try {
             getStorage().addMessage(mCurrentContact, messageToSend);
-            loadMessageList(mCurrentContact);
+            setContact(mCurrentContact);
 
             PendingIntent sentIntent = PendingIntent.getBroadcast(getApplicationContext(), 0,
                                                                   new Intent("SMS_SENT"), 0);
@@ -141,22 +143,29 @@ public class SmsActivity extends Activity
         super.onStart();
 
         Bundle extras = getIntent().getExtras();
-        if (extras != null
-                && extras.containsKey(ContactActivity.CONTACT_NAME_EXTRA)
+        if (extras != null) {
+            if (extras.containsKey(ContactActivity.CONTACT_NAME_EXTRA)
                 && extras.containsKey(ContactActivity.CONTACT_NUMBER_EXTRA)) {
-            String contactName = extras.getString(ContactActivity.CONTACT_NAME_EXTRA);
-            String contactNumber = extras.getString(ContactActivity.CONTACT_NUMBER_EXTRA);
+                String contactName = extras.getString(ContactActivity.CONTACT_NAME_EXTRA);
+                String contactNumber = extras.getString(ContactActivity.CONTACT_NUMBER_EXTRA);
 
-            try {
-                getStorage().addContact(contactName, contactNumber);
-            } catch (Exception e) {
-                e.printStackTrace();
+                try {
+                    getStorage().addContact(contactName, contactNumber);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }
 
-        loadContactList();
-        if (mCurrentContact != null) {
-            loadMessageList(mCurrentContact);
+            if (extras.containsKey(MessageManager.CONTACT_PHONE_NUMBER_INTENT_KEY)) {
+                loadContactList();
+                Contact contact = MessageManager.findContactWithPhoneNumber(
+                                    mContactList,
+                                    extras.getString(
+                                        MessageManager.CONTACT_PHONE_NUMBER_INTENT_KEY));
+                if (contact != null) {
+                    setContact(contact);
+                }
+            }
         }
     }
 
@@ -170,12 +179,23 @@ public class SmsActivity extends Activity
         }
     }
 
-    private void setContact(int contactIndex) {
+    private void setContactFromIndex(int contactIndex) {
         Log.i("tag", "setContact called with index : " + contactIndex);
         if (mContactList != null) {
-            mCurrentContact = mContactList.get(contactIndex);
-            loadMessageList(mCurrentContact);
+            setContact(mContactList.get(contactIndex));
         }
+    }
+
+    private void setContact(Contact contact) {
+        if (mContactList != null) {
+            mCurrentContact = contact;
+            loadMessageList(contact);
+            setSmsBarTitle(contact.getName());
+        }
+    }
+
+    private void setSmsBarTitle(String titleText) {
+        getActionBar().setTitle(titleText);
     }
 
     private void loadMessageList(Contact contact) {
@@ -212,14 +232,14 @@ public class SmsActivity extends Activity
         fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
                 .commit();
-        setContact(position);
+        setContactFromIndex(position);
     }
 
     public void restoreActionBar() {
         final ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
+        //actionBar.setTitle(mTitle);
     }
 
 
