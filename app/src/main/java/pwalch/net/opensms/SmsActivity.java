@@ -1,33 +1,27 @@
 package pwalch.net.opensms;
 
-import android.app.Activity;
-
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-
-import javax.xml.transform.TransformerException;
 
 import pwalch.net.opensms.adapters.ContactListAdapter;
 import pwalch.net.opensms.adapters.MessageListAdapter;
@@ -52,6 +46,7 @@ public class SmsActivity extends Activity
      */
     private CharSequence mTitle;
     private DrawerLayout mDrawerLayout;
+    private Menu mMenu;
 
     private ListView mContactsView;
     private ListView mConversationView;
@@ -104,8 +99,6 @@ public class SmsActivity extends Activity
                 }
             }
         });
-
-        hideControls(true);
 
         loadContactList();
     }
@@ -242,14 +235,31 @@ public class SmsActivity extends Activity
         //actionBar.setTitle(mTitle);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        mMenu = menu;
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
             getMenuInflater().inflate(R.menu.sms, menu);
+
+            MenuItem editContactItem = menu.findItem(R.id.edit_contact);
+            final Activity activity = this;
+            editContactItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    // Edit contact name in dialog
+                    return true;
+                }
+            });
+
+            if (mCurrentContact == null) {
+                editContactItem.setVisible(false);
+            } else {
+                editContactItem.setVisible(true);
+            }
+
             restoreActionBar();
             return true;
         }

@@ -30,7 +30,8 @@
                     android:layout_width="80dp"
                     android:layout_height="50dp"
                     android:layout_alignParentRight="true"
-                    android:text="@string/send_button_text"/>
+                    android:text="@string/send_button_text"
+                    android:visibility="invisible"/>
 
                 <EditText
                     android:id="@+id/message_to_send"
@@ -44,7 +45,8 @@
                     android:inputType="textMultiLine"
                     android:scrollbars="vertical"
                     android:scrollbarStyle="insideInset"
-                    android:overScrollMode="ifContentScrolls"/>
+                    android:overScrollMode="ifContentScrolls"
+                    android:visibility="invisible"/>
 
             </RelativeLayout>
 
