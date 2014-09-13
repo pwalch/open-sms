@@ -249,7 +249,11 @@ public class SmsActivity extends Activity
             editContactItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem menuItem) {
-                    // Edit contact name in dialog
+                    EditContactDialog dialog = new EditContactDialog();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(ContactActivity.CONTACT_NAME_EXTRA, mCurrentContact.getName());
+                    dialog.setArguments(bundle);
+                    dialog.show(getFragmentManager(), "EditContactDialog");
                     return true;
                 }
             });
