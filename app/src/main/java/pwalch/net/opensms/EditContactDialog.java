@@ -36,7 +36,6 @@ public class EditContactDialog extends DialogFragment {
         AlertDialog dialog = builder.create();
         final EditText input = new EditText(dialog.getContext());
         input.setMinLines(1);
-        input.setTextColor(Color.BLACK);
 
         String contactName = getArguments().getString(ContactActivity.CONTACT_NAME_EXTRA);
         input.setText(contactName);
